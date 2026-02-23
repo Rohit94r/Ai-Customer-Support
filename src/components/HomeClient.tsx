@@ -64,8 +64,13 @@ function HomeClient({ email }: { email: string }) {
           AI Customer Support <br /> Build for Modern Websites
         </h1>
         <p className='mt-6 text-lg text-zinc-600 max-w-xl '>
-          Add a powerfull AI Chatbot to your website in minutes. Our AI Customer Support is designed to provide instant and accurate responses to your customers, improving their experience and boosting your business. With easy integration and customizable features, you can have your AI support up and running in no time.
+          Add a powerful AI Chatbot to your website in minutes. Our AI Customer Support is designed to provide instant and accurate responses to your customers, improving their experience and boosting your business. With easy integration and customizable features, you can have your AI support up and running in no time.
         </p>
+        <div>
+          <button className='px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition  disabled:opacity-60'>Get Started</button>
+          <button className='px-7 py-3 rounded-xl border border-zinc-300 text-zinc-700 hover:bg-zinc-50 transition'>Learn More</button>
+
+        </div>
 
        </motion.div>
        <div>
