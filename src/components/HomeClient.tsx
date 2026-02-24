@@ -20,6 +20,20 @@ function HomeClient({ email }: { email: string }) {
       document.removeEventListener("mousedown", handler);
     };
   }, []);
+  const features = [
+    {
+      title: "Plug & Play",
+      desc: "Add the chatbot to your site with a single script tag."
+    },
+    {
+      title: "Admin Controlled",
+      desc: "You control exactly what the AI knows and answers."
+    },
+    {
+      title: "Always Online",
+      desc: "Your customers get instant support 24/7."
+    }
+  ]
   return (
     <div className="min-h-screen bg-linear-to-br from-white to-zinc-50 text-zinc-900 overflow-x-hidden">
       <motion.div
@@ -92,41 +106,87 @@ function HomeClient({ email }: { email: string }) {
               features, you can have your AI support up and running in no time.
             </p>
             <div className='mt-10 flex gap-4'>
-             {email?
-              <button className="px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition  disabled:opacity-60">
-                Go to Dashboard
-              </button>:
-              <button className="px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition  disabled:opacity-60" onAbort={handleLogin}>
-                Get Started
-              </button>}
-              <button className="px-7 py-3 rounded-xl border border-zinc-300 text-zinc-700 hover:bg-zinc-50 transition">
+              {email ?
+                <button className="px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition  disabled:opacity-60">
+                  Go to Dashboard
+                </button> :
+                <button className="px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition  disabled:opacity-60" onAbort={handleLogin}>
+                  Get Started
+                </button>}
+              <a href='#feature' className="px-7 py-3 rounded-xl border border-zinc-300 text-zinc-700 hover:bg-zinc-50 transition" >
                 Learn More
-              </button>
+              </a>
             </div>
           </motion.div>
-          
-          
-                        {/* RIGHT DEV */}
+
+
+          {/* RIGHT DEV */}
           <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="relative"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="relative"
           >
-          <div className="rounded-2xl bg-white shadow-2xl border border-zinc-200 p-6">
-          <div className="text-sm text-zinc-500 mb-3">Live Chat Preview</div>
-          <div className="space-y-4">
-            <div className="bg-black text-white rounded-lg px-4 py-2 text-sm ml-auto w-fit">Do you offer cash on delivery?</div>
-              <div className='bg-zinc-100 rounded-lg px-4 py-2 text-sm w-fit'>yes, Cash on Delivery is available.</div>
-          </div>
-              <motion.div>
-                
+            <div className="rounded-2xl bg-white shadow-2xl border border-zinc-200 p-6">
+              <div className="text-sm text-zinc-500 mb-3">Live Chat Preview</div>
+              <div className="space-y-4">
+                <div className="bg-black text-white rounded-lg px-4 py-2 text-sm ml-auto w-fit">Do you offer cash on delivery?</div>
+                <div className='bg-zinc-100 rounded-lg px-4 py-2 text-sm w-fit'>yes, Cash on Delivery is available.</div>
+              </div>
+              <motion.div
+                animate={{ y: [0, -12, 0] }}
+                transition={{ repeat: Infinity, duration: 3 }}
+                className="absolute -buttom-6 -right-6 w-14 h-14 rounded-full bg-black text-white flex items-center justify-center shadow-xl"
+              >
+                💬
+
+
               </motion.div>
-          </div>
-        
+            </div>
+
           </motion.div>
         </div>
       </section>
+      {/* FEATURES */}
+      <section
+        id='feature'
+        className='bg-zinc-50 py-28 px-6 border-t border-zinc-200'
+      >
+        <div className='max-w-6xl mx-auto'>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false }}
+            transition={{ duration: 0.9 }}
+            className='text-3xl font-semibold text-center'
+          >
+            Why Businesses Choose SupportAi
+          </motion.h2>
+          <div className='mt-16 grid grid-cols-1 md:grid-cols-3 gap-10'>
+            {features.map((f, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                viewport={{ once: false }}
+                className='bg-white rounded-2xl p-8 shadow-lg border border-zinc-200'>
+                <h1 className='mt-3 text-zinc-600 text-sm text-bold'>{f.title}</h1>
+                <p className='mt-3 text-zinc-600 text-sm'>{f.desc}</p>
+
+              </motion.div>
+            ))}
+          </div>
+
+        </div>
+
+      </section>
+      {/* FOOTER */}
+
+     <footer>
+      &copy; {new Date().getFull}
+     </footer>
+
     </div>
   );
 }
