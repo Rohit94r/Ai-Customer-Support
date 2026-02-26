@@ -6,7 +6,11 @@ import axios from "axios";
 import { AnimatePresence, motion } from "motion/react";
 
 function HomeClient({ email }: { email: string }) {
+  const [loading, setLoading]=useState(false)
+
+  
   const handleLogin = () => {
+    setLoading(true)
     window.location.href = "/api/auth/login";
   };
   const firstLetter = email ? email[0].toUpperCase() : "";
@@ -39,7 +43,7 @@ function HomeClient({ email }: { email: string }) {
   ]
   const handleLogOut=async()=>{
     try {
-      const result= await axios.get('/api/auth/logout')
+      await axios.get('/api/auth/logout')
        window.location.href = "/"
     } catch (error) {
       console.log(error)
@@ -91,9 +95,11 @@ function HomeClient({ email }: { email: string }) {
           ) : (
             <button
               onClick={handleLogin}
+              disabled={loading}
               className="px-5 py-2 rounded-full bg-black text-white text-sm font-medium hover:bg-zinc-800 transition disabled:opacity-60 flex item-center gap-2"
+              
             >
-              Login
+              {loading?"Loading....":"Login"}
             </button>
           )}
         </div>

@@ -16,7 +16,6 @@ export async function OPTIONS() {
 }
 
 export async function POST(req: NextRequest) {
-   const response = new NextResponse();
    const headers = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -75,9 +74,10 @@ export async function POST(req: NextRequest) {
             contents: prompt,
          });
          return NextResponse.json({ text: response.text }, { headers });
-      } catch (apiError: any) {
+      } catch (apiError: Error | unknown) {
          // Handle quota exceeded and other API errors
-         if (apiError?.status === 429 || apiError?.message?.includes('quota')) {
+         const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);
+         if (errorMessage.includes('429') || errorMessage.includes('quota')) {
             return NextResponse.json({ 
                error: "API quota exceeded. Please try again later or upgrade your plan.",
                message: "Our AI service is temporarily unavailable due to usage limits. " + setting.supportEmail ? `Please contact us at ${setting.supportEmail}` : "Please contact support." 

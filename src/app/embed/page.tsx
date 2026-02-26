@@ -3,11 +3,11 @@ import { getSession } from '@/lib/getSession'
 import React from 'react'
 
 async function page() {
-   const session=getSession()
+   const session=await getSession()
 
   return (
     <div>
-      <EmbedClient ownerId={session?.user?.id} />
+      <EmbedClient ownerId={(session && typeof session === 'object' && 'id' in session ? (session.id as string) : "") || ""} />
     </div>
   )
 }
