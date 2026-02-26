@@ -59,7 +59,7 @@ function HomeClient({ email }: { email: string }) {
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between ">
           <div className="text-lg font-semibold tracking-tight">
-            Support <span className="text-zinc-400">Ai</span>
+            Apna <span className="text-zinc-400">AI</span>
           </div>
 
           {email ? (
@@ -177,7 +177,7 @@ function HomeClient({ email }: { email: string }) {
             transition={{ duration: 0.9 }}
             className='text-3xl font-semibold text-center'
           >
-            Why Businesses Choose SupportAi
+            Why Businesses Choose ApnaAi
           </motion.h2>
           <div className='mt-16 grid grid-cols-1 md:grid-cols-3 gap-10'>
             {features.map((f, index) => (
@@ -201,7 +201,7 @@ function HomeClient({ email }: { email: string }) {
       {/* FOOTER */}
 
      <footer className='py-10 text-center text-sm text-zinc-500'>
-      &copy; {new Date().getFullYear()} SupportAi. All rights reserved.
+      &copy; {new Date().getFullYear()} ApnaAi. All rights reserved.
      </footer>
 
     </div>

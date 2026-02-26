@@ -1,4 +1,4 @@
-# Support AI - AI-Powered Customer Support Chatbot
+# Apna AI - AI-Powered Customer Support Chatbot
 
 > An intelligent, embeddable AI-powered customer support chatbot that brings 24/7 assistance to your website.
 
@@ -9,7 +9,7 @@
 
 ## 🎯 Overview
 
-Support AI is a sophisticated customer support platform that enables businesses to embed intelligent AI chatbots on their websites. Powered by Google's Gemini AI, it delivers instant, knowledge-based responses to customer inquiries around the clock.
+Apna AI is a sophisticated customer support platform that enables businesses to embed intelligent AI chatbots on their websites. Powered by Google's Gemini AI, it delivers instant, knowledge-based responses to customer inquiries around the clock.
 
 ### ✨ Key Features
 

@@ -19,7 +19,7 @@ function EmbedClient({ ownerId }: { ownerId: string }) {
    return (
       <div className="min-h-screen bg-zinc-50 text-zinc-900">
          <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div className="text-lg font-semibold cursor-pointer" onClick={() => router.push("/")}>Support <span className="text-zinc-400">AI</span></div>
+         <div className="text-lg font-semibold cursor-pointer" onClick={()=>router.push("/")}>Apna <span className="text-zinc-400">AI</span></div>
             <button className='px-4 py-2 rounded-lg border border-zinc-300 text-sm hover:bg-zinc-100 transition' onClick={() => router.push("/dashboard")}>Back to Dashboard</button>
 
          </div>
@@ -62,7 +62,7 @@ function EmbedClient({ ownerId }: { ownerId: string }) {
 
                         <div className='absolute bottom-24 right-6 w-64 bg-white rounded-xl shadow-xl border border-zinc-200 overflow-hidden'>
                            <div className='bg-black text-white text-xs px-3 py-2 flex justify-between items-center'>
-                              <span>Customer Support</span>
+                              <span>Apna AI</span>
                               <span>✕</span>
                            </div>
                            <div className='p-3 space-y-2 bg-zinc-50'>

@@ -47,7 +47,7 @@
    })
 
    box.innerHTML = `<div style="background:#000; color:#fff; padding:12px 14px; font-size:14px; display:flex; justify-content:space-between; align-items:center; height:40px; width:100%; box-sizing: border-box;">
-  <span>Customer Support</span>
+  <span>Apna AI</span>
   <span id="chat-close" style="cursor:pointer; font-size:20px; font-weight:bold; line-height:1; padding:4px 8px; min-width:24px; text-align:center; user-select:none;">✕</span>
   </div>
   <div id="chat-messages" style="flex:1; padding:12px; overflow-y:auto; background:#f9fafb; display:flex; flex-direction:column;"></div>
