@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
@@ -10,18 +10,39 @@ function DashboardClient({ ownerId }: { ownerId: string }) {
   const [supportEmail, setSupportEmail] = React.useState("")
   const [knowledge, setKnowledge] = React.useState("")
   const [loading, setLoading] = React.useState(false)
+  const [saved, setSaved] = React.useState(false)
 
   const handleSettings = async () => {
     setLoading(true)
     try {
       const result = await axios.post('/api/settings', { ownerId, businessName, supportEmail, knowledge })
       console.log('Saved:', result.data)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
       setLoading(false)
     } catch (error) {
       console.log('Error:', error)
       setLoading(false)
     }
   }
+  useEffect(()=>{
+    if(ownerId) {
+      const handleGetDetails=async ()=>{
+     try {
+      const result = await axios.post('/api/settings/get', { ownerId})
+     setBusinessName(result.data.businessName)
+     setSupportEmail(result.data.supportEmail)
+     setKnowledge(result.data.knowledge)
+
+    
+    } catch (error) {
+      console.log('Error:', error)
+      
+    }
+  }
+  handleGetDetails()
+}
+  }, [ownerId])
 
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900">
@@ -38,7 +59,7 @@ function DashboardClient({ ownerId }: { ownerId: string }) {
           >
             Support <span className="text-zinc-400">AI</span>
           </div>
-          <button className='px-4 py-2 rounded-lg border border-zinc-300 text-sm hover:bg-zinc-100 transition'>
+          <button className='px-4 py-2 rounded-lg border border-zinc-300 text-sm hover:bg-zinc-100 transition' onClick={() => navigate.push("/embed")}>
             Embed ChatBot
           </button>
         </div>
@@ -60,11 +81,11 @@ function DashboardClient({ ownerId }: { ownerId: string }) {
           <div className='mb-10'>
             <h1 className='text-lg font-medium mb-4'>Knowledge Base</h1>
             <p className='text-sm text-zinc-500 mb-4'>Add FAQs, policies, delivery info, refunds, etc.</p>
-            <textarea 
-              className='w-full h-52 rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80' 
-              placeholder='Example: Refund policy: 7 days return available. Delivery time: 3-5 working days. Cash on Delivery Available. Support hours 24/7.' 
-              value={knowledge} 
-              onChange={(e) => setKnowledge(e.target.value)} 
+            <textarea
+              className='w-full h-52 rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80'
+              placeholder='Example: Refund policy: 7 days return available. Delivery time: 3-5 working days. Cash on Delivery Available. Support hours 24/7.'
+              value={knowledge}
+              onChange={(e) => setKnowledge(e.target.value)}
             />
           </div>
           <div className='flex items-center gap-5'>
@@ -77,6 +98,13 @@ function DashboardClient({ ownerId }: { ownerId: string }) {
             >
               {loading ? "Saving..." : "Save"}
             </motion.button>
+            {saved && <motion.span
+              initial={{ opacity: 0, y:6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className='text-sm font-medium text-emerald-600'
+            >
+              Settings Saved
+            </motion.span>}
           </div>
         </motion.div>
       </div>
