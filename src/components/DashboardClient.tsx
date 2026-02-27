@@ -101,71 +101,142 @@ function DashboardClient({ ownerId }: { ownerId: string }) {
           <div className='mb-10'>
             <h1 className='text-lg font-medium mb-4'>Knowledge Base</h1>
             <p className='text-sm text-zinc-500 mb-4'>Add all information the AI should know about your business. The chatbot will use this to answer customer questions.</p>
-            <textarea
-              className='w-full h-80 rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80 font-mono text-xs'
-              placeholder={`BUSINESS: ABC Electronics
-WEBSITE: www.abc-electronics.com
-CONTACT: support@abc-electronics.com | WhatsApp: +91-9876543210
+            
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              {/* Input Section */}
+              <div>
+                <label className='block text-sm font-medium mb-2'>Your Business Information</label>
+                <textarea
+                  className='w-full h-96 rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80 font-mono text-xs resize-none'
+                  placeholder='Paste your business info here...'
+                  value={knowledge}
+                  onChange={(e) => setKnowledge(e.target.value)}
+                />
+                <p className='text-xs text-zinc-500 mt-2'>💡 Tip: Copy the sample from the right side and customize it with your business details</p>
+              </div>
 
-PRODUCTS:
-- Smartphones: iPhone 15 (₹79,999), Samsung S24 (₹74,999), OnePlus 12 (₹62,999)
-- Laptops: Dell XPS, HP Pavilion, MacBook Air
-- Accessories: Chargers, Cases, Screen Protectors
+              {/* Sample Data Section */}
+              <div>
+                <label className='block text-sm font-medium mb-2'>📋 Sample Template (Copy & Fill Blanks)</label>
+                <div className='w-full h-96 rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-xs font-mono overflow-y-auto'>
+                  <pre className='whitespace-pre-wrap text-xs text-zinc-700'>{`BUSINESS: __________ [Your Shop Name]
+WEBSITE: __________ [Your Website URL]
+CONTACT: __________ [Email] | WhatsApp: __________
+
+PRODUCTS & SERVICES:
+- Product 1: __________ (₹ __________)
+- Product 2: __________ (₹ __________)
+- Service: __________
 
 PRICING & OFFERS:
-- All prices are inclusive of GST
-- Student Discount: 10% on valid student ID
-- Bulk Orders: 15% discount for orders above 50 units
-- Festival Offer: 20% off on selected items (Valid till 31st March)
-- Seasonal Sales: Every month new offers
+- __________ Discount: __% on __________
+- Bulk Orders: __% discount for __ units
+- Special Offer: __________ (Valid till __)
+- Seasonal Sales: __________
 
 SHIPPING & DELIVERY:
-- Delivery Time: 2-3 days (Metro cities), 5-7 days (Others)
-- Shipping Cost: Free on orders above ₹1000
-- Shipping Cost: ₹50 on orders below ₹1000
-- COD Available: Yes, in all areas
-- International Shipping: Not available currently
+- Delivery Time: __ days (Metro), __ days (Others)
+- Free Shipping: On orders above ₹__________
+- Shipping Cost: ₹__________ (below minimum)
+- COD Available: Yes/No
+- Delivery Areas: __________
 
-RETURN & REFUND POLICY:
-- Return Window: 7 days from delivery
-- Condition: Product must be unopened and in original packaging
-- Refund Process: 3-5 business days after approval
-- Damaged Products: Full refund or replacement within 24 hours
-- Non-returnable Items: Opened software, digital products
+RETURN & REFUND:
+- Return Window: __ days from delivery
+- Condition: __________
+- Refund Time: __________ days
+- Non-returnable: __________
 
 PAYMENT METHODS:
-- Credit Card, Debit Card, Net Banking
-- UPI: Google Pay, PhonePe, Paytm
-- Wallet: Amazon Pay, Airtel Money
-- EMI: Available on purchases above ₹10,000
-- Cash on Delivery: Available
+- Credit/Debit Card: Yes
+- UPI Apps: __________ (Google Pay, PhonePe, etc)
+- Wallet: __________
+- EMI Available: On orders above ₹__________
+- COD: __________
 
-WARRANTY & SUPPORT:
-- Manufacturer Warranty: Included with all products
-- Extended Warranty: Available for ₹999-₹2999
-- Technical Support: 24/7 via email and phone
-- Support Hours: Monday-Friday 9AM-6PM, Saturday 10AM-4PM
-- No support on Sundays and public holidays
-
-BUSINESS HOURS:
-- Monday-Friday: 9:00 AM - 6:00 PM IST
-- Saturday: 10:00 AM - 4:00 PM IST
-- Sunday: Closed
-- Holidays: National holidays closed
+SUPPORT & WARRANTY:
+- Support Email: __________
+- Support Phone: __________
+- Support Hours: __________ IST
+- Warranty: __________
 
 FAQ:
-Q: How can I track my order?
-A: You'll receive a tracking link via email and SMS after dispatch
+Q: __________?
+A: __________
 
-Q: Can I cancel my order?
-A: Orders can be cancelled within 2 hours of placement
+Q: __________?
+A: __________
 
-Q: Are prices negotiable for bulk orders?
-A: Yes, please contact sales@abc-electronics.com for bulk pricing`}
-              value={knowledge}
-              onChange={(e) => setKnowledge(e.target.value)}
-            />
-            <p className='text-xs text-zinc-500 mt-2'>Be detailed and specific. The more accurate information you provide, the better answers your chatbot will give. Include pricing, policies, delivery times, contact details, FAQs, and any other relevant business information.</p>
+BUSINESS HOURS:
+Monday-Friday: __ AM - __ PM
+Saturday: __ AM - __ PM
+Sunday: __________`}</pre>
+                </div>
+                <button 
+                  onClick={() => {
+                    const sampleText = `BUSINESS: __________ [Your Shop Name]
+WEBSITE: __________ [Your Website URL]
+CONTACT: __________ [Email] | WhatsApp: __________
+
+PRODUCTS & SERVICES:
+- Product 1: __________ (₹ __________)
+- Product 2: __________ (₹ __________)
+- Service: __________
+
+PRICING & OFFERS:
+- __________ Discount: __% on __________
+- Bulk Orders: __% discount for __ units
+- Special Offer: __________ (Valid till __)
+- Seasonal Sales: __________
+
+SHIPPING & DELIVERY:
+- Delivery Time: __ days (Metro), __ days (Others)
+- Free Shipping: On orders above ₹__________
+- Shipping Cost: ₹__________ (below minimum)
+- COD Available: Yes/No
+- Delivery Areas: __________
+
+RETURN & REFUND:
+- Return Window: __ days from delivery
+- Condition: __________
+- Refund Time: __________ days
+- Non-returnable: __________
+
+PAYMENT METHODS:
+- Credit/Debit Card: Yes
+- UPI Apps: __________ (Google Pay, PhonePe, etc)
+- Wallet: __________
+- EMI Available: On orders above ₹__________
+- COD: __________
+
+SUPPORT & WARRANTY:
+- Support Email: __________
+- Support Phone: __________
+- Support Hours: __________ IST
+- Warranty: __________
+
+FAQ:
+Q: __________?
+A: __________
+
+Q: __________?
+A: __________
+
+BUSINESS HOURS:
+Monday-Friday: __ AM - __ PM
+Saturday: __ AM - __ PM
+Sunday: __________`;
+                    navigator.clipboard.writeText(sampleText);
+                    alert('Template copied! Now paste it in the left field and fill in your details.');
+                  }}
+                  className='mt-2 w-full px-3 py-2 bg-black text-white text-xs rounded-lg hover:bg-zinc-800 transition font-medium'
+                >
+                  📋 Copy Template & Paste Left
+                </button>
+              </div>
+            </div>
+            
+            <p className='text-xs text-zinc-500 mt-4'>📌 Instructions: Copy the template from right, paste in left field, replace blanks (________) with your actual business information. More details = Better AI responses!</p>
           </div>
           <div className='flex items-center gap-5'>
             <motion.button
