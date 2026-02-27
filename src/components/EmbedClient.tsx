@@ -6,9 +6,10 @@ import React from 'react'
 function EmbedClient({ ownerId }: { ownerId: string }) {
    const router = useRouter()
    const [copied, setCopied] = React.useState(false)
+   const chatbotUrl = process.env.NEXT_PUBLIC_CHATBOT_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
    const embedCode = `
    <script 
-     src="${process.env.NEXT_PUBLIC_CHATBOT_URL}/chatBot.js "
+     src="${chatbotUrl}/chatBot.js"
      data-owner-id="${ownerId}">
    </script>`
    const copyCode = () => {

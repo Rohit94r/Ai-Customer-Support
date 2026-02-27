@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -85,9 +86,9 @@ function HomeClient({ email }: { email: string }) {
                     <button className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-100" onClick={() => navigate.push("/dashboard")}  >
                       Dashboard
                     </button>
-                    <button className="block px-4 py-3 text-sm text-red-600 hover:bg-zinc-100" onClick={handleLogOut}>
+                    <a href="/api/auth/logout" className="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-zinc-100">
                       Logout
-                    </button>
+                    </a>
                   </motion.div>
                 )}
               </AnimatePresence>
