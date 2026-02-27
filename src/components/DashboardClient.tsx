@@ -73,20 +73,99 @@ function DashboardClient({ ownerId }: { ownerId: string }) {
           <div className='mb-10'>
             <h1 className='text-lg font-medium mb-4'>Business Details</h1>
             <div className='space-y-4'>
-              <input type="text" className='w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80' placeholder='Business Name' value={businessName} onChange={(e) => setBusinessName(e.target.value)} />
-              <input type="text" className='w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80' placeholder='Support Email' value={supportEmail} onChange={(e) => setSupportEmail(e.target.value)} />
+              <div>
+                <label className='block text-sm font-medium mb-2'>Business Name *</label>
+                <input 
+                  type="text" 
+                  className='w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80' 
+                  placeholder='e.g., ABC Electronics, Fashion Store, Restaurant Name' 
+                  value={businessName} 
+                  onChange={(e) => setBusinessName(e.target.value)} 
+                />
+                <p className='text-xs text-zinc-500 mt-2'>Your company or business name - displayed in chatbot header</p>
+              </div>
+              <div>
+                <label className='block text-sm font-medium mb-2'>Support Email *</label>
+                <input 
+                  type="email" 
+                  className='w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80' 
+                  placeholder='support@example.com' 
+                  value={supportEmail} 
+                  onChange={(e) => setSupportEmail(e.target.value)} 
+                />
+                <p className='text-xs text-zinc-500 mt-2'>Used as fallback when chatbot cannot answer a question</p>
+              </div>
             </div>
           </div>
 
           <div className='mb-10'>
             <h1 className='text-lg font-medium mb-4'>Knowledge Base</h1>
-            <p className='text-sm text-zinc-500 mb-4'>Add FAQs, policies, delivery info, refunds, etc.</p>
+            <p className='text-sm text-zinc-500 mb-4'>Add all information the AI should know about your business. The chatbot will use this to answer customer questions.</p>
             <textarea
-              className='w-full h-52 rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80'
-              placeholder='Example: Refund policy: 7 days return available. Delivery time: 3-5 working days. Cash on Delivery Available. Support hours 24/7.'
+              className='w-full h-80 rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80 font-mono text-xs'
+              placeholder={`BUSINESS: ABC Electronics
+WEBSITE: www.abc-electronics.com
+CONTACT: support@abc-electronics.com | WhatsApp: +91-9876543210
+
+PRODUCTS:
+- Smartphones: iPhone 15 (₹79,999), Samsung S24 (₹74,999), OnePlus 12 (₹62,999)
+- Laptops: Dell XPS, HP Pavilion, MacBook Air
+- Accessories: Chargers, Cases, Screen Protectors
+
+PRICING & OFFERS:
+- All prices are inclusive of GST
+- Student Discount: 10% on valid student ID
+- Bulk Orders: 15% discount for orders above 50 units
+- Festival Offer: 20% off on selected items (Valid till 31st March)
+- Seasonal Sales: Every month new offers
+
+SHIPPING & DELIVERY:
+- Delivery Time: 2-3 days (Metro cities), 5-7 days (Others)
+- Shipping Cost: Free on orders above ₹1000
+- Shipping Cost: ₹50 on orders below ₹1000
+- COD Available: Yes, in all areas
+- International Shipping: Not available currently
+
+RETURN & REFUND POLICY:
+- Return Window: 7 days from delivery
+- Condition: Product must be unopened and in original packaging
+- Refund Process: 3-5 business days after approval
+- Damaged Products: Full refund or replacement within 24 hours
+- Non-returnable Items: Opened software, digital products
+
+PAYMENT METHODS:
+- Credit Card, Debit Card, Net Banking
+- UPI: Google Pay, PhonePe, Paytm
+- Wallet: Amazon Pay, Airtel Money
+- EMI: Available on purchases above ₹10,000
+- Cash on Delivery: Available
+
+WARRANTY & SUPPORT:
+- Manufacturer Warranty: Included with all products
+- Extended Warranty: Available for ₹999-₹2999
+- Technical Support: 24/7 via email and phone
+- Support Hours: Monday-Friday 9AM-6PM, Saturday 10AM-4PM
+- No support on Sundays and public holidays
+
+BUSINESS HOURS:
+- Monday-Friday: 9:00 AM - 6:00 PM IST
+- Saturday: 10:00 AM - 4:00 PM IST
+- Sunday: Closed
+- Holidays: National holidays closed
+
+FAQ:
+Q: How can I track my order?
+A: You'll receive a tracking link via email and SMS after dispatch
+
+Q: Can I cancel my order?
+A: Orders can be cancelled within 2 hours of placement
+
+Q: Are prices negotiable for bulk orders?
+A: Yes, please contact sales@abc-electronics.com for bulk pricing`}
               value={knowledge}
               onChange={(e) => setKnowledge(e.target.value)}
             />
+            <p className='text-xs text-zinc-500 mt-2'>Be detailed and specific. The more accurate information you provide, the better answers your chatbot will give. Include pricing, policies, delivery times, contact details, FAQs, and any other relevant business information.</p>
           </div>
           <div className='flex items-center gap-5'>
             <motion.button
