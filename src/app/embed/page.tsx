@@ -5,7 +5,7 @@ import EmbedClient from "@/components/EmbedClient";
 export default async function EmbedPage() {
   const session = await getSession();
   
-  if (!session) {
+  if (!session || !session.user) {
     redirect("/");
   }
 
