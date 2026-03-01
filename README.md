@@ -1,217 +1,136 @@
-# Apna AI - AI-Powered Customer Support Chatbot
+# AI Customer Support Chatbot
 
-> An intelligent, embeddable AI-powered customer support chatbot that brings 24/7 assistance to your website.
+A smart AI-powered chatbot that you can embed on any website to provide instant customer support 24/7.
 
-![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?style=flat-square)
-![React](https://img.shields.io/badge/React-19.2.3-blue?style=flat-square)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square)
-![MongoDB](https://img.shields.io/badge/MongoDB-Latest-green?style=flat-square)
+## 🌟 Features
 
-## 🎯 Overview
+- **AI-Powered Responses** - Uses Google Gemini AI to answer customer questions
+- **Easy Setup** - Just copy & paste one line of code to your website
+- **Customizable** - Add your own business information and FAQs
+- **24/7 Support** - Your chatbot never sleeps
+- **Beautiful UI** - Modern floating chat widget
 
-Apna AI is a sophisticated customer support platform that enables businesses to embed intelligent AI chatbots on their websites. Powered by Google's Gemini AI, it delivers instant, knowledge-based responses to customer inquiries around the clock.
+## 🚀 Live Demo
 
-### ✨ Key Features
+**Website:** https://apnaaibyrohit.vercel.app
 
-- 🤖 **AI-Powered Responses** - Google Gemini 2.0 Flash integration
-- 📝 **Admin-Controlled Knowledge Base** - Full control over training data
-- 🔐 **Enterprise Authentication** - Scalekit SSO integration  
-- 💾 **Data Persistence** - MongoDB for reliable storage
-- 🎨 **Modern UI** - Beautiful design with Tailwind CSS & animations
-- ⚡ **High Performance** - Next.js 16 with Turbopack
-- 🔌 **Easy Integration** - Single script tag embed
-- 📊 **Admin Dashboard** - Complete chatbot management
-- 📱 **Mobile Responsive** - Perfect on all devices
-- 🎬 **Typing Animation** - Visual feedback while processing
+## 📋 How It Works
 
-## 🛠️ Tech Stack
+1. **Sign Up** - Create your account
+2. **Add Business Info** - Fill in your business details and knowledge base
+3. **Get Embed Code** - Copy your unique chatbot script
+4. **Add to Website** - Paste the code before `</body>` tag
+5. **Done!** - Your AI chatbot is live
 
-**Frontend:** Next.js 16.1.6 • React 19.2.3 • TypeScript • Tailwind CSS • Motion
+## 💻 Tech Stack
 
-**Backend:** Next.js API Routes • MongoDB • Mongoose • Google Gemini API • Scalekit SDK
+- **Frontend:** Next.js 16, React 19, Tailwind CSS, Framer Motion
+- **Backend:** Next.js API Routes
+- **Database:** MongoDB
+- **AI:** Google Gemini API
+- **Auth:** Scalekit
+- **Deployment:** Vercel
 
-## 📋 Prerequisites
-
-- Node.js 18+
-- MongoDB (Atlas free tier)
-- Google Gemini API key  
-- Scalekit account
-
-## 🚀 Quick Start
+## 🛠️ Installation
 
 ```bash
-# Clone and install
-git clone <repo-url>
+# Clone the repository
+git clone https://github.com/Rohit94r/Ai-Customer-Support.git
+
+# Navigate to project
 cd ai-support
+
+# Install dependencies
 npm install
 
-# Create .env.local with credentials
-# See section below for details
+# Create .env.local file with:
+MONGODB_URL=your_mongodb_url
+GEMINI_API_KEY=your_gemini_api_key
+SCALEKIT_CLIENT_ID=your_scalekit_client_id
+SCALEKIT_CLIENT_SECRET=your_scalekit_client_secret
+SCALEKIT_ENVIRONMENT_URL=your_scalekit_url
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_SCALEKIT_REDIRECT_URI=http://localhost:3000/api/auth/callback
 
-# Start development
+# Run development server
 npm run dev
 ```
 
-Visit `http://localhost:3000`
+## 📦 How to Use on Your Website
 
-## 🔧 Environment Configuration
-
-Create `.env.local`:
-
-```env
-# Database
-MONGODB_URL=mongodb+srv://user:password@cluster.mongodb.net/database
-
-# AI API
-GEMINI_API_KEY=your_gemini_key
-
-# Authentication  
-SCALEKIT_ENVIRONMENT_URL=https://your-tenant.scalekit.dev
-SCALEKIT_CLIENT_ID=your_client_id
-SCALEKIT_CLIENT_SECRET=your_secret
-NEXT_PUBLIC_SCALEKIT_REDIRECT_URI=http://localhost:3000
-
-# URLs
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_CHATBOT_URL=http://localhost:3000
-```
-
-## 📖 How It Works
-
-### Business Owner Flow
-1. **Login** → Dashboard (`/dashboard`)
-2. **Configure** → Add business info & knowledge base
-3. **Deploy** → Copy embed code from `/embed`
-4. **Integrate** → Paste script on website
-
-### Customer Flow  
-1. **Click** → Chat bubble (bottom right)
-2. **Ask** → Type your question
-3. **Get Response** → Instant AI answer
-
-## 💻 Embedding
-
-Add this before closing `</body>` tag:
+Add this code to your website's HTML before the `</body>` tag:
 
 ```html
-<script 
-  src="http://localhost:3000/chatBot.js"
-  data-owner-id="your_owner_id">
+<script
+  src="https://apnaaibyrohit.vercel.app/chatBot.js"
+  data-owner-id="YOUR_OWNER_ID">
 </script>
 ```
 
-## 🔗 API Reference
+Get your `YOUR_OWNER_ID` from the dashboard after signing up.
 
-### Chat API
-**POST** `/api/chat`
-```json
-{
-  "message": "What's your return policy?",
-  "ownerId": "usr_12345"
-}
-```
-
-### Settings API  
-**GET** `/api/settings/get?ownerId=xxx`
-**POST** `/api/settings`
-
-### Authentication
-- `GET /api/auth/login` - Start login flow
-- `GET /api/auth/callback` - Handle redirect
-- `GET /api/auth/logout` - End session
-
-## 📁 Structure
+## 📁 Project Structure
 
 ```
-src/
-├── app/
-│   ├── api/              # Backend routes
-│   ├── dashboard/        # Admin panel
-│   ├── embed/            # Embed page
-│   └── page.tsx          # Home
-├── components/           # React components
-├── lib/                  # Utilities
-├── model/                # Schemas
-└── proxy.ts              # Middleware
+ai-support/
+├── src/
+│   ├── app/              # Next.js pages
+│   │   ├── api/          # API routes
+│   │   ├── dashboard/    # Dashboard page
+│   │   └── embed/        # Embed code page
+│   ├── components/       # React components
+│   ├── lib/              # Utilities
+│   └── model/            # MongoDB models
+├── public/
+│   └── chatBot.js        # Chatbot widget script
+└── README.md
 ```
 
-## 🔐 Security
+## 🎯 Key Features Explained
 
-✅ Type-safe TypeScript  
-✅ CORS protection  
-✅ Environment variables  
-✅ Input validation  
-✅ Secure sessions  
-✅ MongoDB pooling  
+### Dashboard
+- Manage business name and support email
+- Add knowledge base (FAQs, policies, etc.)
+- Get embed code with your unique ID
 
-## 🚀 Deploy
+### Chatbot Widget
+- Floating button in bottom-right corner
+- Clean chat interface
+- Real-time AI responses
+- Mobile responsive
 
-### Vercel
-```bash
-git push  # Deploy automatically
-```
+### AI Integration
+- Powered by Google Gemini
+- Uses your custom knowledge base
+- Provides accurate business-specific answers
 
-### Docker
-```bash
-npm run build
-docker build -t support-ai .
-docker run -p 3000:3000 support-ai
-```
+## 🔒 Environment Variables
 
-## 🐛 Troubleshooting
-
-**Chatbot not showing?**
-- Check script placement before `</body>`
-- Verify `data-owner-id` value
-- Open DevTools (F12) for errors
-
-**API quota exceeded?**
-- Upgrade Gemini API plan
-- Check usage at [ai.google.dev/rate-limit](https://ai.google.dev/rate-limit)
-
-**MongoDB connection failed?**
-- Verify connection string
-- Check IP whitelist in MongoDB Atlas
-- Test credentials
-
-**Auth issues?**
-- Verify Scalekit configuration
-- Check callback redirect URL
-- Clear browser cookies
-
-## 🤝 Contributing
-
-```bash
-git checkout -b feature/your-feature
-git commit -m "Add feature"
-git push origin feature/your-feature
-```
-
-Then create a Pull Request.
+| Variable | Description |
+|----------|-------------|
+| `MONGODB_URL` | MongoDB connection string |
+| `GEMINI_API_KEY` | Google Gemini API key |
+| `SCALEKIT_CLIENT_ID` | Scalekit authentication client ID |
+| `SCALEKIT_CLIENT_SECRET` | Scalekit authentication secret |
+| `SCALEKIT_ENVIRONMENT_URL` | Scalekit environment URL |
+| `NEXT_PUBLIC_APP_URL` | Your app URL |
 
 ## 📝 License
 
-MIT License - See LICENSE file
+MIT License - feel free to use for your projects!
 
-## 🆘 Support
+## 👨‍💻 Developer
 
-- 📧 **Email:** support@supportai.com
-- 🐛 **Issues:** [GitHub Issues](https://github.com/your-repo/issues)
-- 📚 **Docs:** [Full Documentation](https://docs.supportai.com)
+Created by Rohit
 
-## 🗺️ Roadmap
+## 🤝 Contributing
 
-- [ ] Multi-language support
-- [ ] Custom chatbot branding
-- [ ] Advanced analytics
-- [ ] Conversation history
-- [ ] Human agent handoff
-- [ ] Sentiment analysis
-- [ ] Mobile app
-- [ ] API integrations
+Contributions are welcome! Feel free to open issues or submit pull requests.
+
+## 📧 Support
+
+For support, email: rjdhav67@gmail.com
 
 ---
 
-**Built with ❤️ for exceptional customer support**
-
-Version 1.0.0 | Last Updated: February 27, 2026
+**Made with ❤️ using Next.js and AI**
