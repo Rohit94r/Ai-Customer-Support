@@ -71,7 +71,16 @@ export async function POST(req: NextRequest) {
          const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
          // Use a supported Gemini model. Update GEMINI_MODEL in your env if you need a different one.
          // Common working models: gemini-2.0-flash, gemini-2.0-flash-001, gemini-2.5-flash
-         const model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+         const supportedModels = [
+            "gemini-2.0-flash",
+            "gemini-2.0-flash-001",
+            "gemini-2.5-flash",
+         ];
+         const envModel = process.env.GEMINI_MODEL;
+         const model = supportedModels.includes(envModel || "")
+            ? envModel!
+            : "gemini-2.0-flash";
+
          const fallbackModel = process.env.GEMINI_FALLBACK_MODEL || "gemini-2.0-flash-001";
 
          const generate = async (targetModel: string) => {
@@ -86,8 +95,15 @@ export async function POST(req: NextRequest) {
             response = await generate(model);
          } catch (apiError: Error | unknown) {
             const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);
-            if (errorMessage.includes('429') || errorMessage.includes('quota')) {
-               // If the primary model is rate limited/quota-exceeded, try a lower-tier fallback model once.
+            if (
+               errorMessage.includes('429') ||
+               errorMessage.includes('quota') ||
+               errorMessage.includes('NOT_FOUND') ||
+               errorMessage.includes('not found') ||
+               errorMessage.includes('not supported for generateContent')
+            ) {
+               // If the primary model is rate limited/quota-exceeded, or invalid/unsupported,
+               // try a known working fallback model once.
                try {
                   response = await generate(fallbackModel);
                } catch {
