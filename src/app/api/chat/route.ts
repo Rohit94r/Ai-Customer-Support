@@ -69,8 +69,10 @@ export async function POST(req: NextRequest) {
       
       try {
          const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-         const model = process.env.GEMINI_MODEL || "gemini-1.0";
-         const fallbackModel = process.env.GEMINI_FALLBACK_MODEL || "gemini-1.0-lite";
+         // Use a supported Gemini model. Update GEMINI_MODEL in your env if you need a different one.
+         // Common working models: gemini-2.0-flash, gemini-2.0-flash-001, gemini-2.5-flash
+         const model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+         const fallbackModel = process.env.GEMINI_FALLBACK_MODEL || "gemini-2.0-flash-001";
 
          const generate = async (targetModel: string) => {
             return await ai.models.generateContent({
