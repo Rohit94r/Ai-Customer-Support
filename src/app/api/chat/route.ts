@@ -80,7 +80,11 @@ export async function POST(req: NextRequest) {
          if (errorMessage.includes('429') || errorMessage.includes('quota')) {
             return NextResponse.json({ 
                error: "API quota exceeded. Please try again later or upgrade your plan.",
-               message: "Our AI service is temporarily unavailable due to usage limits. " + setting.supportEmail ? `Please contact us at ${setting.supportEmail}` : "Please contact support." 
+               message: `Our AI service is temporarily unavailable due to usage limits. ${
+                  setting.supportEmail
+                     ? `Please contact us at ${setting.supportEmail}`
+                     : "Please contact support."
+               }`,
             }, { 
                status: 429,
                headers
