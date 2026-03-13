@@ -70,10 +70,33 @@ export async function POST(req: NextRequest) {
       try {
          const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
          const model = process.env.GEMINI_MODEL || "gemini-1.0";
-         const response = await ai.models.generateContent({
-            model,
-            contents: prompt,
-         });
+         const fallbackModel = process.env.GEMINI_FALLBACK_MODEL || "gemini-1.0-lite";
+
+         const generate = async (targetModel: string) => {
+            return await ai.models.generateContent({
+               model: targetModel,
+               contents: prompt,
+            });
+         };
+
+         let response;
+         try {
+            response = await generate(model);
+         } catch (apiError: Error | unknown) {
+            const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);
+            if (errorMessage.includes('429') || errorMessage.includes('quota')) {
+               // If the primary model is rate limited/quota-exceeded, try a lower-tier fallback model once.
+               try {
+                  response = await generate(fallbackModel);
+               } catch {
+                  // Keep the original error so the outer catch handles it.
+                  throw apiError;
+               }
+            } else {
+               throw apiError;
+            }
+         }
+
          return NextResponse.json({ text: response.text }, { headers });
       } catch (apiError: Error | unknown) {
          // Handle quota exceeded and other API errors
