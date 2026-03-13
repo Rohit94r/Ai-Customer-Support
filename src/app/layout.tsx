@@ -28,6 +28,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+
+        <script
+          src="https://apnaaibyrohit.vercel.app/chatBot.js"
+          data-owner-id="usr_116307440923836418"
+        ></script>
       </body>
     </html>
   );
