@@ -1,6 +1,6 @@
 import connectDb from "@/lib/db";
 import Settings from "@/model/settings.model";
-import { GoogleGenAI } from "@google/genai";
+import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
 
 // Enable CORS
@@ -68,69 +68,24 @@ export async function POST(req: NextRequest) {
       `;
       
       try {
-         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-         // Use a supported Gemini model. Update GEMINI_MODEL in your env if you need a different one.
-         // Common working models: gemini-2.0-flash, gemini-2.0-flash-001, gemini-2.5-flash
-         const supportedModels = [
-            "gemini-2.0-flash",
-            "gemini-2.0-flash-001",
-            "gemini-2.5-flash",
-         ];
-         const envModel = process.env.GEMINI_MODEL;
-         const model = supportedModels.includes(envModel || "")
-            ? envModel!
-            : "gemini-2.0-flash";
-
-         const fallbackModel = process.env.GEMINI_FALLBACK_MODEL || "gemini-2.0-flash-001";
-
-         const generate = async (targetModel: string) => {
-            return await ai.models.generateContent({
-               model: targetModel,
-               contents: prompt,
-            });
-         };
-
-         let response;
-         try {
-            response = await generate(model);
-         } catch (apiError: Error | unknown) {
-            const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);
-            if (
-               errorMessage.includes('429') ||
-               errorMessage.includes('quota') ||
-               errorMessage.includes('NOT_FOUND') ||
-               errorMessage.includes('not found') ||
-               errorMessage.includes('not supported for generateContent')
-            ) {
-               // If the primary model is rate limited/quota-exceeded, or invalid/unsupported,
-               // try a known working fallback model once.
-               try {
-                  response = await generate(fallbackModel);
-               } catch {
-                  // Keep the original error so the outer catch handles it.
-                  throw apiError;
-               }
-            } else {
-               throw apiError;
-            }
-         }
-
-         return NextResponse.json({ text: response.text }, { headers });
+         const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+         const completion = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [{ role: "user", content: prompt }],
+         });
+         const text = completion.choices[0]?.message?.content || "No response";
+         return NextResponse.json({ text }, { headers });
       } catch (apiError: Error | unknown) {
-         // Handle quota exceeded and other API errors
          const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);
-         if (errorMessage.includes('429') || errorMessage.includes('quota')) {
-            return NextResponse.json({ 
-               error: "API quota exceeded. Please try again later or upgrade your plan.",
+         if (errorMessage.includes('429') || errorMessage.includes('quota') || errorMessage.includes('rate limit')) {
+            return NextResponse.json({
+               error: "API quota exceeded. Please try again later.",
                message: `Our AI service is temporarily unavailable due to usage limits. ${
                   setting.supportEmail
                      ? `Please contact us at ${setting.supportEmail}`
                      : "Please contact support."
                }`,
-            }, { 
-               status: 429,
-               headers
-            });
+            }, { status: 429, headers });
          }
          throw apiError;
       }
