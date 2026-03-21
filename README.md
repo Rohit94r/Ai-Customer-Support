@@ -1,64 +1,32 @@
-# AI Customer Support Chatbot
+# 🤖 Apna AI — AI Customer Support Chatbot
 
-A smart AI-powered chatbot that you can embed on any website to provide instant customer support 24/7.
+> Embed a smart AI chatbot on any website in under 2 minutes. No coding required.
 
-## 🌟 Features
+**Live App:** https://apnaaibyrohit.vercel.app
 
-- **AI-Powered Responses** - Uses Google Gemini AI to answer customer questions
-- **Easy Setup** - Just copy & paste one line of code to your website
-- **Customizable** - Add your own business information and FAQs
-- **24/7 Support** - Your chatbot never sleeps
-- **Beautiful UI** - Modern floating chat widget
+---
 
-## 🚀 Live Demo
+## ✨ What is Apna AI?
 
-**Website:** https://apnaaibyrohit.vercel.app
+Apna AI lets any business owner add an AI-powered customer support chatbot to their website by pasting a single line of code. The chatbot is trained on your own business information and answers customer questions 24/7 — automatically.
 
-## 📋 How It Works
+---
 
-1. **Sign Up** - Create your account
-2. **Add Business Info** - Fill in your business details and knowledge base
-3. **Get Embed Code** - Copy your unique chatbot script
-4. **Add to Website** - Paste the code before `</body>` tag
-5. **Done!** - Your AI chatbot is live
+## 🚀 Quick Start (For Website Owners)
 
-## 💻 Tech Stack
+### Step 1 — Sign Up
+Go to https://apnaaibyrohit.vercel.app and sign in with your account.
 
-- **Frontend:** Next.js 16, React 19, Tailwind CSS, Framer Motion
-- **Backend:** Next.js API Routes
-- **Database:** MongoDB
-- **AI:** Google Gemini API
-- **Auth:** Scalekit
-- **Deployment:** Vercel
+### Step 2 — Configure Your Chatbot
+Go to **Dashboard** and fill in:
+- Business Name
+- Support Email
+- Knowledge Base (your products, pricing, FAQs, policies, etc.)
 
-## 🛠️ Installation
+Click **Save**.
 
-```bash
-# Clone the repository
-git clone https://github.com/Rohit94r/Ai-Customer-Support.git
-
-# Navigate to project
-cd ai-support
-
-# Install dependencies
-npm install
-
-# Create .env.local file with:
-MONGODB_URL=your_mongodb_url
-GEMINI_API_KEY=your_gemini_api_key
-SCALEKIT_CLIENT_ID=your_scalekit_client_id
-SCALEKIT_CLIENT_SECRET=your_scalekit_client_secret
-SCALEKIT_ENVIRONMENT_URL=your_scalekit_url
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_SCALEKIT_REDIRECT_URI=http://localhost:3000/api/auth/callback
-
-# Run development server
-npm run dev
-```
-
-## 📦 How to Use on Your Website
-
-Add this code to your website's HTML before the `</body>` tag:
+### Step 3 — Embed on Your Website
+Go to **Embed ChatBot** and copy your unique script tag:
 
 ```html
 <script
@@ -67,70 +35,153 @@ Add this code to your website's HTML before the `</body>` tag:
 </script>
 ```
 
-Get your `YOUR_OWNER_ID` from the dashboard after signing up.
+Paste it before the `</body>` tag on your website. Done! 🎉
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 |
+| Frontend | React 19, Tailwind CSS, Framer Motion |
+| Backend | Next.js API Routes |
+| Database | MongoDB (Mongoose) |
+| AI | Groq API (LLaMA 3.3 70B) |
+| Auth | Scalekit |
+| Deployment | Vercel |
+
+---
+
+## 💻 Local Development
+
+### Prerequisites
+- Node.js 18+
+- MongoDB database
+- Groq API key → https://console.groq.com
+- Scalekit account → https://scalekit.com
+
+### Setup
+
+```bash
+# Clone the repo
+git clone https://github.com/Rohit94r/Ai-Customer-Support.git
+cd Ai-Customer-Support
+
+# Install dependencies
+npm install
+
+# Create environment file
+cp .env.example .env.local
+```
+
+Fill in your `.env.local`:
+
+```env
+GROQ_API_KEY=your_groq_api_key
+MONGODB_URL=your_mongodb_connection_string
+SCALEKIT_CLIENT_ID=your_scalekit_client_id
+SCALEKIT_CLIENT_SECRET=your_scalekit_client_secret
+SCALEKIT_ENVIRONMENT_URL=your_scalekit_environment_url
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_SCALEKIT_REDIRECT_URI=http://localhost:3000/api/auth/callback
+```
+
+```bash
+# Start development server
+npm run dev
+```
+
+Open http://localhost:3000
+
+---
+
+## 🔑 Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `GROQ_API_KEY` | Groq API key for AI responses | ✅ |
+| `MONGODB_URL` | MongoDB connection string | ✅ |
+| `SCALEKIT_CLIENT_ID` | Scalekit auth client ID | ✅ |
+| `SCALEKIT_CLIENT_SECRET` | Scalekit auth secret | ✅ |
+| `SCALEKIT_ENVIRONMENT_URL` | Scalekit environment URL | ✅ |
+| `NEXT_PUBLIC_APP_URL` | Your deployed app URL | ✅ |
+| `NEXT_PUBLIC_SCALEKIT_REDIRECT_URI` | OAuth callback URL | ✅ |
+
+---
 
 ## 📁 Project Structure
 
 ```
-ai-support/
-├── src/
-│   ├── app/              # Next.js pages
-│   │   ├── api/          # API routes
-│   │   ├── dashboard/    # Dashboard page
-│   │   └── embed/        # Embed code page
-│   ├── components/       # React components
-│   ├── lib/              # Utilities
-│   └── model/            # MongoDB models
+Ai-Customer-Support/
 ├── public/
-│   └── chatBot.js        # Chatbot widget script
+│   └── chatBot.js          # Embeddable chatbot widget
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── chat/       # AI chat endpoint
+│   │   │   ├── settings/   # Save/get bot settings
+│   │   │   └── auth/       # Login, logout, callback
+│   │   ├── dashboard/      # Bot configuration page
+│   │   ├── embed/          # Embed code page
+│   │   └── page.tsx        # Landing page
+│   ├── components/
+│   │   ├── HomeClient.tsx
+│   │   ├── DashboardClient.tsx
+│   │   └── EmbedClient.tsx
+│   ├── lib/
+│   │   ├── db.ts           # MongoDB connection
+│   │   ├── getSession.ts   # Auth session helper
+│   │   └── scalekit.ts     # Scalekit client
+│   └── model/
+│       └── settings.model.ts  # MongoDB settings schema
 └── README.md
 ```
 
-## 🎯 Key Features Explained
+---
 
-### Dashboard
-- Manage business name and support email
-- Add knowledge base (FAQs, policies, etc.)
-- Get embed code with your unique ID
+## 📡 API Reference
 
-### Chatbot Widget
-- Floating button in bottom-right corner
-- Clean chat interface
-- Real-time AI responses
-- Mobile responsive
+### `POST /api/chat`
+Handles chatbot messages from embedded widgets.
 
-### AI Integration
-- Powered by Google Gemini
-- Uses your custom knowledge base
-- Provides accurate business-specific answers
+**Request:**
+```json
+{
+  "message": "What are your business hours?",
+  "ownerId": "usr_xxxxxxxxxxxxxxxxx"
+}
+```
 
-## 🔒 Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `MONGODB_URL` | MongoDB connection string |
-| `GEMINI_API_KEY` | Google Gemini API key |
-| `SCALEKIT_CLIENT_ID` | Scalekit authentication client ID |
-| `SCALEKIT_CLIENT_SECRET` | Scalekit authentication secret |
-| `SCALEKIT_ENVIRONMENT_URL` | Scalekit environment URL |
-| `NEXT_PUBLIC_APP_URL` | Your app URL |
-
-## 📝 License
-
-MIT License - feel free to use for your projects!
-
-## 👨‍💻 Developer
-
-Created by Rohit
-
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to open issues or submit pull requests.
-
-## 📧 Support
-
-For support, email: rjdhav67@gmail.com
+**Response:**
+```json
+{
+  "text": "Our business hours are Monday to Friday, 9 AM to 6 PM IST."
+}
+```
 
 ---
 
-**Made with ❤️ using Next.js and AI**
+## 🚢 Deploy to Vercel
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel --prod
+```
+
+Add all environment variables in Vercel → Settings → Environment Variables.
+
+---
+
+## 👨‍💻 Author
+
+Built by **Rohit** — [rjdhav67@gmail.com](mailto:rjdhav67@gmail.com)
+
+---
+
+## 📄 License
+
+MIT License — free to use and modify.
