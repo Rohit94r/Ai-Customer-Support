@@ -30,17 +30,48 @@ function HomeClient({ email }: { email: string }) {
   const navigate=useRouter()
   const features = [
     {
-      title: "Plug & Play",
-      desc: "Add the chatbot to your site with a single script tag."
+      title: "Free AI Chatbot — No Cost",
+      desc: "Get a fully functional AI chatbot for your website completely free. No credit card, no hidden fees."
     },
     {
-      title: "Admin Controlled",
-      desc: "You control exactly what the AI knows and answers."
+      title: "Embed in 1 Minute",
+      desc: "Add the chatbot to any website with a single script tag. Works on WordPress, Shopify, HTML, or any platform."
     },
     {
-      title: "Always Online",
-      desc: "Your customers get instant support 24/7."
-    }
+      title: "Train with Your Business Info",
+      desc: "Add your products, pricing, FAQs and policies. The AI only answers based on your knowledge base."
+    },
+    {
+      title: "24/7 Instant Customer Support",
+      desc: "Your AI chatbot never sleeps. Customers get instant answers any time of day or night."
+    },
+    {
+      title: "No Coding Required",
+      desc: "Anyone can set it up. Just sign up, fill in your business details, copy the script tag and paste it on your site."
+    },
+    {
+      title: "Powered by Advanced AI",
+      desc: "Built on LLaMA 3.3 70B via Groq — one of the fastest and most accurate AI models available."
+    },
+  ]
+
+  const faqs = [
+    {
+      q: "How do I add a chatbot to my website for free?",
+      a: "Sign up on ApnaAI, fill in your business details, then copy the 1-line script tag and paste it before the </body> tag on your website. Your AI chatbot will be live instantly."
+    },
+    {
+      q: "Is ApnaAI really free?",
+      a: "Yes, ApnaAI is completely free to use. Sign up, configure your chatbot, and embed it on your website at no cost."
+    },
+    {
+      q: "Does it work on WordPress, Shopify or any website?",
+      a: "Yes. ApnaAI works on any website — WordPress, Shopify, Wix, plain HTML, or any other platform. Just paste the script tag."
+    },
+    {
+      q: "How does the AI know about my business?",
+      a: "You add your business information — products, pricing, FAQs, policies — in the dashboard. The AI uses only your knowledge base to answer customer questions."
+    },
   ]
   const handleLogOut=async()=>{
     try {
@@ -114,14 +145,10 @@ function HomeClient({ email }: { email: string }) {
             className=""
           >
             <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
-              AI Customer Support <br /> Build for Modern Websites
+              Free AI Chatbot for <br /> Your Website — Live in 1 Minute
             </h1>
             <p className="mt-6 text-lg text-zinc-600 max-w-xl ">
-              Add a powerful AI Chatbot to your website in minutes. Our AI
-              Customer Support is designed to provide instant and accurate
-              responses to your customers, improving their experience and
-              boosting your business. With easy integration and customizable
-              features, you can have your AI support up and running in no time.
+              ApnaAI lets you add a free AI-powered customer support chatbot to any website in minutes — no coding required. Embed it with one script tag, train it with your business info, and let AI handle customer questions 24/7.
             </p>
             <div className='mt-10 flex gap-4'>
               {email ?
@@ -178,7 +205,7 @@ function HomeClient({ email }: { email: string }) {
             transition={{ duration: 0.9 }}
             className='text-3xl font-semibold text-center'
           >
-            Why Businesses Choose ApnaAi
+            Why Businesses Choose ApnaAI — Free Chatbot for Websites
           </motion.h2>
           <div className='mt-16 grid grid-cols-1 md:grid-cols-3 gap-10'>
             {features.map((f, index) => (
@@ -189,9 +216,8 @@ function HomeClient({ email }: { email: string }) {
                 transition={{ delay: index * 0.1 }}
                 viewport={{ once: false }}
                 className='bg-white rounded-2xl p-8 shadow-lg border border-zinc-200'>
-                <h1 className='mt-3 text-zinc-600 text-sm text-bold'>{f.title}</h1>
+                <h3 className='font-semibold text-zinc-900'>{f.title}</h3>
                 <p className='mt-3 text-zinc-600 text-sm'>{f.desc}</p>
-
               </motion.div>
             ))}
           </div>
@@ -199,10 +225,52 @@ function HomeClient({ email }: { email: string }) {
         </div>
 
       </section>
-      {/* FOOTER */}
+      {/* FAQ */}
+      <section className='py-28 px-6'>
+        <div className='max-w-3xl mx-auto'>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false }}
+            className='text-3xl font-semibold text-center mb-12'
+          >
+            Frequently Asked Questions
+          </motion.h2>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: faqs.map((f) => ({
+                  "@type": "Question",
+                  name: f.q,
+                  acceptedAnswer: { "@type": "Answer", text: f.a },
+                })),
+              }),
+            }}
+          />
+          <div className='space-y-6'>
+            {faqs.map((f, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                viewport={{ once: false }}
+                className='bg-zinc-50 rounded-2xl p-6 border border-zinc-200'
+              >
+                <h3 className='font-semibold text-zinc-900'>{f.q}</h3>
+                <p className='mt-2 text-sm text-zinc-600'>{f.a}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
+      {/* FOOTER */}
      <footer className='py-10 text-center text-sm text-zinc-500'>
-      &copy; {new Date().getFullYear()} ApnaAi. All rights reserved.
+      &copy; {new Date().getFullYear()} ApnaAI. All rights reserved. &mdash; Free AI Chatbot for Websites
      </footer>
 
     </div>
