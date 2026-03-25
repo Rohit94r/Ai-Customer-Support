@@ -1,5 +1,5 @@
 (function () {
-   const apiUrl = 'https://apnaaibyrohit.vercel.app/api/chat';
+   const apiUrl = 'https://apnaai.online/api/chat';
    const scriptTag = document.currentScript;
    const ownerId = scriptTag.getAttribute('data-owner-id');
 

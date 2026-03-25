@@ -3,39 +3,20 @@ import Settings from "@/model/settings.model";
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-// Enable CORS
-export async function OPTIONS() {
-   return new NextResponse(null, {
-      status: 200,
-      headers: {
-         'Access-Control-Allow-Origin': '*',
-         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-         'Access-Control-Allow-Headers': 'Content-Type',
-      },
-   });
-}
-
 export async function POST(req: NextRequest) {
-   const headers = {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-   };
 
    try {
       const { message, ownerId } = await req.json();
       if (!message || !ownerId) {
          return NextResponse.json({ error: "Message and OwnerId are required" }, { 
-            status: 400,
-            headers
+            status: 400
          });
       }
       await connectDb()
       const setting = await Settings.findOne({ownerId})
       if (!setting) {
          return NextResponse.json({ message: "chat bot is not configured for this user" }, { 
-            status: 400,
-            headers
+            status: 400
          });
 
       }
@@ -74,7 +55,7 @@ export async function POST(req: NextRequest) {
             messages: [{ role: "user", content: prompt }],
          });
          const text = completion.choices[0]?.message?.content || "No response";
-         return NextResponse.json({ text }, { headers });
+         return NextResponse.json({ text });
       } catch (apiError: Error | unknown) {
          const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);
          if (errorMessage.includes('429') || errorMessage.includes('quota') || errorMessage.includes('rate limit')) {
@@ -85,7 +66,7 @@ export async function POST(req: NextRequest) {
                      ? `Please contact us at ${setting.supportEmail}`
                      : "Please contact support."
                }`,
-            }, { status: 429, headers });
+            }, { status: 429 });
          }
          throw apiError;
       }
@@ -98,8 +79,7 @@ export async function POST(req: NextRequest) {
          error: errorMessage,
          message: `Chat error: ${errorMessage}` 
       }, { 
-         status: 500,
-         headers
+         status: 500
       });
    }
 
