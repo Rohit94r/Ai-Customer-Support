@@ -7,9 +7,9 @@ import axios from "axios";
 import { AnimatePresence, motion } from "motion/react";
 
 function HomeClient({ email }: { email: string }) {
-  const [loading, setLoading]=useState(false)
+  const [loading, setLoading] = useState(false)
 
-  
+
   const handleLogin = () => {
     setLoading(true)
     window.location.href = "/api/auth/login";
@@ -27,7 +27,7 @@ function HomeClient({ email }: { email: string }) {
       document.removeEventListener("mousedown", handler);
     };
   }, []);
-  const navigate=useRouter()
+  const navigate = useRouter()
   const features = [
     {
       title: "Free AI Chatbot — No Cost",
@@ -73,10 +73,10 @@ function HomeClient({ email }: { email: string }) {
       a: "You add your business information — products, pricing, FAQs, policies — in the dashboard. The AI uses only your knowledge base to answer customer questions."
     },
   ]
-  const handleLogOut=async()=>{
+  const handleLogOut = async () => {
     try {
       await axios.get('/api/auth/logout')
-       window.location.href = "/"
+      window.location.href = "/"
     } catch (error) {
       console.log(error)
     }
@@ -129,9 +129,9 @@ function HomeClient({ email }: { email: string }) {
               onClick={handleLogin}
               disabled={loading}
               className="px-5 py-2 rounded-full bg-black text-white text-sm font-medium hover:bg-zinc-800 transition disabled:opacity-60 flex item-center gap-2"
-              
+
             >
-              {loading?"Loading....":"Login"}
+              {loading ? "Loading...." : "Login"}
             </button>
           )}
         </div>
@@ -145,14 +145,14 @@ function HomeClient({ email }: { email: string }) {
             className=""
           >
             <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
-              Free AI Chatbot for <br /> Your Website — Live in 1 Minute
+              Free AI Chatbot for <br /> Your Website - Live in 1 Minute
             </h1>
             <p className="mt-6 text-lg text-zinc-600 max-w-xl ">
-              ApnaAI lets you add a free AI-powered customer support chatbot to any website in minutes — no coding required. Embed it with one script tag, train it with your business info, and let AI handle customer questions 24/7.
+              ApnaAI lets you add a free AI-powered customer support chatbot to any website in minutes - no coding required. Embed it with one script tag, train it with your business info, and let AI handle customer questions 24/7.
             </p>
             <div className='mt-10 flex gap-4'>
               {email ?
-                <button className="px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition  disabled:opacity-60" onClick={() => navigate.push("/dashboard")}>
+                <button className=" cursor-pointer  px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition  disabled:opacity-60" onClick={() => navigate.push("/dashboard")}>
                   Go to Dashboard
                 </button> :
                 <button className="px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition  disabled:opacity-60" onAbort={handleLogin}>
@@ -269,9 +269,9 @@ function HomeClient({ email }: { email: string }) {
       </section>
 
       {/* FOOTER */}
-     <footer className='py-10 text-center text-sm text-zinc-500'>
-      &copy; {new Date().getFullYear()} ApnaAI. All rights reserved. &mdash; Free AI Chatbot for Websites
-     </footer>
+      <footer className='py-10 text-center text-sm text-zinc-500'>
+        &copy; {new Date().getFullYear()} ApnaAI. All rights reserved. &mdash; Free AI Chatbot for Websites
+      </footer>
 
     </div>
   );
