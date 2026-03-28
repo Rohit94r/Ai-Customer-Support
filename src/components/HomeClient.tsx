@@ -30,28 +30,28 @@ function HomeClient({ email }: { email?: string }) {
   const navigate = useRouter()
   const features = [
     {
-      title: "Free AI Chatbot — No Cost",
-      desc: "Get a fully functional AI chatbot for your website completely free. No credit card, no hidden fees."
+      title: "100% Free — No Hidden Fees",
+      desc: "Get a fully functional AI chatbot for your website without spending a dime. No credit card, no recurring costs."
     },
     {
-      title: "Embed in 1 Minute",
-      desc: "Add the chatbot to any website with a single script tag. Works on WordPress, Shopify, HTML, or any platform."
+      title: "Embed in Under 2 Minutes",
+      desc: "Speed matters. Add our smart chatbot to any platform—WordPress, Shopify, Wix, or custom HTML—with a single line of code."
     },
     {
-      title: "Train with Your Business Info",
-      desc: "Add your products, pricing, FAQs and policies. The AI only answers based on your knowledge base."
+      title: "Trained on Your Data Only",
+      desc: "Stop worrying about hallucinations. Upload your FAQs, pricing, and policies, and the AI will only answer based on your specific knowledge."
     },
     {
-      title: "24/7 Instant Customer Support",
-      desc: "Your AI chatbot never sleeps. Customers get instant answers any time of day or night."
+      title: "24/7 Instant Response",
+      desc: "Don't keep your customers waiting. Provide instant, accurate answers even while you sleep, ensuring you never miss a lead."
     },
     {
-      title: "No Coding Required",
-      desc: "Anyone can set it up. Just sign up, fill in your business details, copy the script tag and paste it on your site."
+      title: "Zero Coding Required",
+      desc: "If you can copy and paste, you can set up ApnaAI. Our dashboard makes it easy for anyone to build a professional AI assistant."
     },
     {
-      title: "Powered by Advanced AI",
-      desc: "Built on LLaMA 3.3 70B via Groq — one of the fastest and most accurate AI models available."
+      title: "Enterprise-Grade Performance",
+      desc: "Powered by LLaMA 3.3 70B via Groq—delivering lightning-fast, natural-sounding conversations that actually help your users."
     },
   ]
 
@@ -144,23 +144,43 @@ function HomeClient({ email }: { email?: string }) {
             transition={{ duration: 0.7 }}
             className=""
           >
-            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
-              Free AI Chatbot for <br /> Your Website - Live in 1 Minute
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight leading-tight">
+              Add a Free AI Chatbot to Your Website <br /> in 2 Minutes (No Coding)
             </h1>
-            <p className="mt-6 text-lg text-zinc-600 max-w-xl ">
-              ApnaAI lets you add a free AI-powered customer support chatbot to any website in minutes - no coding required. Embed it with one script tag, train it with your business info, and let AI handle customer questions 24/7.
+            <p className="mt-6 text-lg text-zinc-600 max-w-xl leading-relaxed">
+              Stop spending hours answering the same questions every day. ApnaAI lets you embed a smart, 24/7 AI-powered customer support bot that knows your business inside and out.
             </p>
-            <div className='mt-10 flex gap-4'>
+            <div className="mt-8 flex items-center gap-3 text-sm text-zinc-500 font-medium">
+              <div className="flex -space-x-2">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-zinc-200 overflow-hidden">
+                    <img 
+                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=user${i}`} 
+                      alt="User avatar" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+              <span>Trusted by 100+ businesses</span>
+            </div>
+            <div className='mt-10 flex flex-wrap gap-4'>
               {email ?
-                <button className=" cursor-pointer  px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition  disabled:opacity-60" onClick={() => navigate.push("/dashboard")}>
+                <button className=" cursor-pointer px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition shadow-lg shadow-black/10" onClick={() => navigate.push("/dashboard")}>
                   Go to Dashboard
                 </button> :
-                <button className="px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition  disabled:opacity-60" onClick={handleLogin}>
-                  Get Started
+                <button className="px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition shadow-lg shadow-black/10" onClick={handleLogin}>
+                  Get Started for Free
                 </button>}
-              <a href='#feature' className="px-7 py-3 rounded-xl border border-zinc-300 text-zinc-700 hover:bg-zinc-50 transition" >
-                Learn More
-              </a>
+              <button 
+                onClick={() => {
+                  const chatButton = Array.from(document.querySelectorAll('div')).find(el => el.innerHTML === '💬');
+                  if (chatButton) (chatButton as HTMLElement).click();
+                }}
+                className="px-7 py-3 rounded-xl border border-zinc-300 text-zinc-700 hover:bg-zinc-50 transition font-medium" 
+              >
+                Try Live Demo
+              </button>
             </div>
           </motion.div>
 
@@ -176,22 +196,48 @@ function HomeClient({ email }: { email?: string }) {
               <div className="text-sm text-zinc-500 mb-3">Live Chat Preview</div>
               <div className="space-y-4">
                 <div className="bg-black text-white rounded-lg px-4 py-2 text-sm ml-auto w-fit">Do you offer cash on delivery?</div>
-                <div className='bg-zinc-100 rounded-lg px-4 py-2 text-sm w-fit'>yes, Cash on Delivery is available.</div>
+                <div className='bg-zinc-100 rounded-lg px-4 py-2 text-sm w-fit'>Yes, Cash on Delivery is available for all orders above ₹500.</div>
+                <div className="bg-black text-white rounded-lg px-4 py-2 text-sm ml-auto w-fit italic text-xs opacity-80">(AI response is instant)</div>
               </div>
               <motion.div
                 animate={{ y: [0, -12, 0] }}
                 transition={{ repeat: Infinity, duration: 3 }}
-                className="absolute -buttom-6 -right-6 w-14 h-14 rounded-full bg-black text-white flex items-center justify-center shadow-xl"
+                className="absolute -bottom-6 -right-6 w-14 h-14 rounded-full bg-black text-white flex items-center justify-center shadow-xl cursor-pointer hover:scale-110 transition"
+                onClick={() => {
+                  const chatButton = Array.from(document.querySelectorAll('div')).find(el => el.innerHTML === '💬');
+                  if (chatButton) (chatButton as HTMLElement).click();
+                }}
               >
                 💬
-
-
               </motion.div>
             </div>
-
           </motion.div>
         </div>
       </section>
+
+      {/* HOW IT WORKS */}
+      <section className="py-24 px-6 border-t border-zinc-200 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-semibold">How It Works</h2>
+            <p className="mt-4 text-zinc-600">Get your AI chatbot live in three simple steps</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {[
+              { step: "01", title: "Sign Up", desc: "Create your free ApnaAI account in seconds and access your dashboard." },
+              { step: "02", title: "Add Your Info", desc: "Upload your business details, FAQs, and product info to train your AI assistant." },
+              { step: "03", title: "Copy & Paste", desc: "Copy one script tag and paste it onto your site. Your bot is now live!" },
+            ].map((item, i) => (
+              <div key={i} className="relative p-8 rounded-2xl bg-zinc-50 border border-zinc-200">
+                <div className="text-4xl font-black text-zinc-200 mb-4">{item.step}</div>
+                <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
+                <p className="text-zinc-600 text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* FEATURES */}
       <section
         id='feature'
@@ -265,6 +311,21 @@ function HomeClient({ email }: { email?: string }) {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
+      <section className="py-24 px-6 bg-black text-white text-center">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-semibold mb-6">Ready to automate your customer support?</h2>
+          <p className="text-zinc-400 text-lg mb-10">Join 100+ businesses using ApnaAI to provide instant support and close more sales.</p>
+          <button 
+            onClick={handleLogin}
+            className="px-10 py-4 rounded-xl bg-white text-black font-semibold hover:bg-zinc-200 transition shadow-xl"
+          >
+            Get Started for Free Now
+          </button>
+          <p className="mt-6 text-sm text-zinc-500 italic">No credit card required. Live in 2 minutes.</p>
         </div>
       </section>
 

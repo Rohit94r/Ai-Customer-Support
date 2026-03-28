@@ -13,32 +13,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ApnaAI — Free AI Chatbot for Your Website | Embed in 1 Minute",
-  description: "ApnaAI is a free AI-powered customer support chatbot you can embed on any website in minutes. No coding required. Add a smart chatbot to your website today and provide 24/7 instant support to your customers.",
+  title: "Free AI Chatbot for Website | ApnaAI - Setup in 2 Minutes",
+  description: "Add a free AI-powered chatbot to your website in 2 minutes. No coding required. Works on WordPress, Shopify, and any website.",
   keywords: [
-    "apnaai",
-    "apna ai",
-    "free chatbot",
     "free AI chatbot",
     "chatbot for website",
-    "add chatbot to website",
-    "embed chatbot",
-    "AI customer support",
-    "free customer support chatbot",
-    "how to add chatbot in website",
-    "website chatbot free",
-    "AI chatbot embed",
     "customer support AI",
-    "chatbot widget",
-    "free chatbot builder",
+    "website chatbot",
+    "no code chatbot",
+    "apnaai",
+    "AI customer service bot",
+    "embed chatbot on wordpress",
+    "free website widget"
   ],
   metadataBase: new URL("https://apnaai.online"),
   alternates: {
     canonical: "https://apnaai.online",
   },
   openGraph: {
-    title: "ApnaAI — Free AI Chatbot for Your Website",
-    description: "Embed a smart AI chatbot on any website in 1 minute. Free, no coding required. Provide 24/7 customer support powered by AI.",
+    title: "Free AI Chatbot for Your Website | ApnaAI",
+    description: "Get a free AI chatbot live in 2 minutes - no coding needed. Provide 24/7 customer support powered by AI.",
     url: "https://apnaai.online",
     siteName: "ApnaAI",
     type: "website",
@@ -53,8 +47,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ApnaAI — Free AI Chatbot for Your Website",
-    description: "Embed a smart AI chatbot on any website in 1 minute. Free, no coding required.",
+    title: "Free AI Chatbot for Your Website | ApnaAI",
+    description: "Get a free AI chatbot live in 2 minutes - no coding needed. Provide 24/7 customer support.",
     images: ["https://apnaai.online/og-image.png"],
   },
   robots: {
