@@ -6,7 +6,7 @@ import axios from "axios";
 
 import { AnimatePresence, motion } from "motion/react";
 
-function HomeClient({ email }: { email: string }) {
+function HomeClient({ email }: { email?: string }) {
   const [loading, setLoading] = useState(false)
 
 
@@ -155,7 +155,7 @@ function HomeClient({ email }: { email: string }) {
                 <button className=" cursor-pointer  px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition  disabled:opacity-60" onClick={() => navigate.push("/dashboard")}>
                   Go to Dashboard
                 </button> :
-                <button className="px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition  disabled:opacity-60" onAbort={handleLogin}>
+                <button className="px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition  disabled:opacity-60" onClick={handleLogin}>
                   Get Started
                 </button>}
               <a href='#feature' className="px-7 py-3 rounded-xl border border-zinc-300 text-zinc-700 hover:bg-zinc-50 transition" >

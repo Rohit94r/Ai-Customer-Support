@@ -6,15 +6,11 @@ import { redirect } from "next/navigation";
 
 
 export default async function Home() {
- const session= await getSession()
-
- if(!session){
-  redirect('/api/auth/login')
- }
+  const session = await getSession();
 
   return (
-   <>
-  <HomeClient email={session.user?.email!} />
-   </>
+    <>
+      <HomeClient email={session?.user?.email ?? undefined} />
+    </>
   );
 }
