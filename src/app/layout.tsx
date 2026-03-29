@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -96,7 +98,7 @@ export default function RootLayout({
           }}
         />
         <script
-          src="https://apnaai.online/chatBot.js"
+          src={`${appUrl}/chatBot.js`}
           data-owner-id="usr_116307440923836418"
         ></script>
       </body>

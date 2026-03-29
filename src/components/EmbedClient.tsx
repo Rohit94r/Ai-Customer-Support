@@ -3,9 +3,10 @@ import React, { useState } from 'react'
 
 export default function EmbedClient({ ownerId }: { ownerId: string }) {
   const [copied, setCopied] = useState(false)
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   
   const scriptCode = `<script 
-  src="https://apnaaibyrohit.vercel.app/chatBot.js"
+  src="${appUrl}/chatBot.js"
   data-owner-id="${ownerId}">
 </script>`
 

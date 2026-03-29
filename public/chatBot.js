@@ -1,6 +1,7 @@
 (function () {
-   const apiUrl = 'https://apnaai.online/api/chat';
    const scriptTag = document.currentScript;
+   const scriptSrc = scriptTag && scriptTag.src ? new URL(scriptTag.src) : null;
+   const apiUrl = scriptTag.getAttribute('data-api-url') || (scriptSrc ? `${scriptSrc.origin}/api/chat` : '/api/chat');
    const ownerId = scriptTag.getAttribute('data-owner-id');
 
    if (!ownerId) {
