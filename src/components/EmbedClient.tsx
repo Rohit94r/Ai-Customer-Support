@@ -20,7 +20,7 @@ export default function EmbedClient({ ownerId }: { ownerId: string }) {
     <div className="min-h-screen bg-zinc-50 p-8 pt-24">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl font-bold mb-4">Embed Chatbot</h1>
-        <p className="text-zinc-600 mb-6">Copy and paste this code into your website's HTML, just before the closing &lt;/body&gt; tag:</p>
+        <p className="text-zinc-600 mb-6">Copy and paste this code into your website&apos;s HTML, just before the closing &lt;/body&gt; tag:</p>
         
         <div className="bg-zinc-900 text-green-400 p-6 rounded-lg font-mono text-sm overflow-x-auto">
           <pre>{scriptCode}</pre>

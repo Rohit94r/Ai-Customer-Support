@@ -2,7 +2,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 
 import { AnimatePresence, motion } from "motion/react";
 
@@ -73,14 +72,6 @@ function HomeClient({ email }: { email?: string }) {
       a: "You add your business information — products, pricing, FAQs, policies — in the dashboard. The AI uses only your knowledge base to answer customer questions."
     },
   ]
-  const handleLogOut = async () => {
-    try {
-      await axios.get('/api/auth/logout')
-      window.location.href = "/"
-    } catch (error) {
-      console.log(error)
-    }
-  }
   return (
     <div className="min-h-screen bg-linear-to-br from-white to-zinc-50 text-zinc-900 overflow-x-hidden">
       <motion.div

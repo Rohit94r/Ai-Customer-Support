@@ -3,19 +3,50 @@ import React, { useEffect } from 'react'
 import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import { CHAT_LANGUAGES, DEFAULT_CHAT_LANGUAGE, type ChatLanguageCode } from '@/lib/chatLanguages'
 
 function DashboardClient({ ownerId }: { ownerId: string }) {
   const navigate = useRouter()
   const [businessName, setBusinessName] = React.useState("")
   const [supportEmail, setSupportEmail] = React.useState("")
   const [knowledge, setKnowledge] = React.useState("")
+  const [defaultLanguage, setDefaultLanguage] = React.useState<ChatLanguageCode>(DEFAULT_CHAT_LANGUAGE)
+  const [supportedLanguages, setSupportedLanguages] = React.useState<ChatLanguageCode[]>(
+    CHAT_LANGUAGES.map((language) => language.code)
+  )
   const [loading, setLoading] = React.useState(false)
   const [saved, setSaved] = React.useState(false)
+
+  const toggleLanguage = (languageCode: ChatLanguageCode) => {
+    setSupportedLanguages((currentLanguages) => {
+      const exists = currentLanguages.includes(languageCode)
+
+      if (exists) {
+        const nextLanguages = currentLanguages.filter((code) => code !== languageCode)
+        if (!nextLanguages.length) {
+          return currentLanguages
+        }
+        if (!nextLanguages.includes(defaultLanguage)) {
+          setDefaultLanguage(nextLanguages[0])
+        }
+        return nextLanguages
+      }
+
+      return [...currentLanguages, languageCode]
+    })
+  }
 
   const handleSettings = async () => {
     setLoading(true)
     try {
-      const result = await axios.post('/api/settings', { ownerId, businessName, supportEmail, knowledge })
+      const result = await axios.post('/api/settings', {
+        ownerId,
+        businessName,
+        supportEmail,
+        knowledge,
+        defaultLanguage,
+        supportedLanguages,
+      })
       console.log('Saved:', result.data)
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
@@ -30,9 +61,16 @@ function DashboardClient({ ownerId }: { ownerId: string }) {
       const handleGetDetails=async ()=>{
      try {
       const result = await axios.post('/api/settings/get', { ownerId})
-     setBusinessName(result.data.businessName)
-     setSupportEmail(result.data.supportEmail)
-     setKnowledge(result.data.knowledge)
+     const settings = result.data || {}
+     setBusinessName(settings.businessName || "")
+     setSupportEmail(settings.supportEmail || "")
+     setKnowledge(settings.knowledge || "")
+     setDefaultLanguage((settings.defaultLanguage || DEFAULT_CHAT_LANGUAGE) as ChatLanguageCode)
+     setSupportedLanguages(
+      Array.isArray(settings.supportedLanguages) && settings.supportedLanguages.length
+        ? settings.supportedLanguages
+        : CHAT_LANGUAGES.map((language) => language.code)
+     )
 
     
     } catch (error) {
@@ -237,6 +275,56 @@ Sunday: __________`;
             </div>
             
             <p className='text-xs text-zinc-500 mt-4'>📌 Instructions: Copy the template from right, paste in left field, replace blanks (________) with your actual business information. More details = Better AI responses!</p>
+          </div>
+          <div className='mb-10'>
+            <h1 className='text-lg font-medium mb-4'>Voice & Language Support</h1>
+            <p className='text-sm text-zinc-500 mb-4'>
+              Choose which languages your customers can use in the chatbot. The widget will show a language switcher and support voice-to-text in supported browsers.
+            </p>
+
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-6'>
+              {CHAT_LANGUAGES.map((language) => {
+                const checked = supportedLanguages.includes(language.code)
+
+                return (
+                  <label
+                    key={language.code}
+                    className={`rounded-xl border px-4 py-3 flex items-start gap-3 transition ${
+                      checked ? 'border-black bg-zinc-50' : 'border-zinc-300 bg-white'
+                    }`}
+                  >
+                    <input
+                      type='checkbox'
+                      className='mt-1'
+                      checked={checked}
+                      onChange={() => toggleLanguage(language.code)}
+                    />
+                    <div>
+                      <div className='text-sm font-medium'>{language.label}</div>
+                      <div className='text-xs text-zinc-500'>{language.nativeLabel}</div>
+                    </div>
+                  </label>
+                )
+              })}
+            </div>
+
+            <div>
+              <label className='block text-sm font-medium mb-2'>Default Language</label>
+              <select
+                value={defaultLanguage}
+                onChange={(e) => setDefaultLanguage(e.target.value as ChatLanguageCode)}
+                className='w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80'
+              >
+                {CHAT_LANGUAGES.filter((language) => supportedLanguages.includes(language.code)).map((language) => (
+                  <option key={language.code} value={language.code}>
+                    {language.label} ({language.nativeLabel})
+                  </option>
+                ))}
+              </select>
+              <p className='text-xs text-zinc-500 mt-2'>
+                Customers can switch languages in the widget. Voice-to-text will listen in the currently selected language.
+              </p>
+            </div>
           </div>
           <div className='flex items-center gap-5'>
             <motion.button
