@@ -103,6 +103,11 @@ export default function RootLayout({
           data-owner-id="usr_116307440923836418"
           strategy="afterInteractive"
         />
+        <Script 
+          src="https://cloud.umami.is/script.js" 
+          data-website-id="f63efa30-2ceb-4765-ad64-0b473d28280b"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
