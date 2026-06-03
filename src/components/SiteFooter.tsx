@@ -66,7 +66,7 @@ export default function SiteFooter() {
             rel="noopener noreferrer"
             target="_blank"
           >
-            Rohit Jadhav
+            Rohit
           </a>
           .
         </p>
