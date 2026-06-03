@@ -3,40 +3,109 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 
+const MUTE_PREF_KEY = "apnaai-demo-video-muted";
+
 export default function FaqDemoVideo() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const mutedRef = useRef(false);
+  const userChoseMuteRef = useRef(false);
+  const hasUnlockedSoundRef = useRef(false);
   const [muted, setMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  mutedRef.current = muted;
+  const applyMuteState = (shouldMute: boolean) => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = shouldMute;
+    setMuted(shouldMute);
+  };
+
+  const enableSound = () => {
+    if (userChoseMuteRef.current) return;
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = false;
+    setMuted(false);
+    hasUnlockedSoundRef.current = true;
+    if (video.paused) {
+      video.play().catch(() => {});
+    }
+  };
+
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(MUTE_PREF_KEY);
+      if (saved === "1") {
+        userChoseMuteRef.current = true;
+        setMuted(true);
+        if (videoRef.current) videoRef.current.muted = true;
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    const unlockSound = () => {
+      if (!userChoseMuteRef.current && !hasUnlockedSoundRef.current) {
+        enableSound();
+      }
+    };
+
+    document.addEventListener("pointerdown", unlockSound, { passive: true });
+    document.addEventListener("keydown", unlockSound, { passive: true });
+
+    return () => {
+      document.removeEventListener("pointerdown", unlockSound);
+      document.removeEventListener("keydown", unlockSound);
+    };
+  }, []);
 
   useEffect(() => {
     const section = sectionRef.current;
     const video = videoRef.current;
     if (!section || !video) return;
 
-    const tryPlay = () => {
-      video.muted = mutedRef.current;
-      return video.play().then(() => {
+    const startPlayback = async () => {
+      if (userChoseMuteRef.current) {
+        video.muted = true;
+        await video.play().catch(() => {});
         setIsPlaying(true);
-      });
+        return;
+      }
+
+      video.muted = false;
+
+      try {
+        await video.play();
+        setIsPlaying(true);
+        hasUnlockedSoundRef.current = true;
+        return;
+      } catch {
+        /* Browser blocked unmuted autoplay — play muted, keep UI as sound on */
+      }
+
+      video.muted = true;
+      try {
+        await video.play();
+        setIsPlaying(true);
+        video.muted = false;
+        try {
+          await video.play();
+          hasUnlockedSoundRef.current = true;
+        } catch {
+          video.muted = true;
+        }
+      } catch {
+        /* ignore */
+      }
     };
 
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        if (!entry) return;
-
-        if (entry.isIntersecting) {
-          tryPlay().catch(() => {
-            video.muted = true;
-            mutedRef.current = true;
-            setMuted(true);
-            tryPlay().catch(() => {});
-          });
-        }
+        if (!entry?.isIntersecting) return;
+        startPlayback();
       },
       { threshold: 0.3, rootMargin: "0px" }
     );
@@ -49,9 +118,23 @@ export default function FaqDemoVideo() {
     const video = videoRef.current;
     if (!video) return;
     const nextMuted = !muted;
-    mutedRef.current = nextMuted;
-    setMuted(nextMuted);
-    video.muted = nextMuted;
+
+    userChoseMuteRef.current = nextMuted;
+    applyMuteState(nextMuted);
+
+    try {
+      sessionStorage.setItem(MUTE_PREF_KEY, nextMuted ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+
+    if (!nextMuted) {
+      hasUnlockedSoundRef.current = true;
+    }
+
+    if (video.paused) {
+      video.play().catch(() => {});
+    }
   };
 
   return (
@@ -75,6 +158,7 @@ export default function FaqDemoVideo() {
           loop
           playsInline
           preload="auto"
+          muted={false}
           controls={false}
           controlsList="nodownload noplaybackrate noremoteplayback"
           disablePictureInPicture
