@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { AnimatePresence, motion } from "motion/react";
+import LiveChatDemo from "@/components/LiveChatDemo";
+import SiteFooter from "@/components/SiteFooter";
 
 function HomeClient({ email }: { email?: string }) {
   const [loading, setLoading] = useState(false)
@@ -27,6 +29,11 @@ function HomeClient({ email }: { email?: string }) {
     };
   }, []);
   const navigate = useRouter()
+
+  const openLiveChat = () => {
+    const chatButton = document.querySelector('[aria-label="Open chat"]') as HTMLElement | null;
+    if (chatButton) chatButton.click();
+  };
   const features = [
     {
       title: "100% Free — No Hidden Fees",
@@ -164,10 +171,7 @@ function HomeClient({ email }: { email?: string }) {
                   Get Started for Free
                 </button>}
               <button 
-                onClick={() => {
-                  const chatButton = Array.from(document.querySelectorAll('div')).find(el => el.innerHTML === '💬');
-                  if (chatButton) (chatButton as HTMLElement).click();
-                }}
+                onClick={openLiveChat}
                 className="px-7 py-3 rounded-xl border border-zinc-300 text-zinc-700 hover:bg-zinc-50 transition font-medium" 
               >
                 Try Live Demo
@@ -176,32 +180,13 @@ function HomeClient({ email }: { email?: string }) {
           </motion.div>
 
 
-          {/* RIGHT DEV */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.2 }}
             className="relative"
           >
-            <div className="rounded-2xl bg-white shadow-2xl border border-zinc-200 p-6">
-              <div className="text-sm text-zinc-500 mb-3">Live Chat Preview</div>
-              <div className="space-y-4">
-                <div className="bg-black text-white rounded-lg px-4 py-2 text-sm ml-auto w-fit">Do you offer cash on delivery?</div>
-                <div className='bg-zinc-100 rounded-lg px-4 py-2 text-sm w-fit'>Yes, Cash on Delivery is available for all orders above ₹500.</div>
-                <div className="bg-black text-white rounded-lg px-4 py-2 text-sm ml-auto w-fit italic text-xs opacity-80">(AI response is instant)</div>
-              </div>
-              <motion.div
-                animate={{ y: [0, -12, 0] }}
-                transition={{ repeat: Infinity, duration: 3 }}
-                className="absolute -bottom-6 -right-6 w-14 h-14 rounded-full bg-black text-white flex items-center justify-center shadow-xl cursor-pointer hover:scale-110 transition"
-                onClick={() => {
-                  const chatButton = Array.from(document.querySelectorAll('div')).find(el => el.innerHTML === '💬');
-                  if (chatButton) (chatButton as HTMLElement).click();
-                }}
-              >
-                💬
-              </motion.div>
-            </div>
+            <LiveChatDemo onOpenChat={openLiveChat} />
           </motion.div>
         </div>
       </section>
@@ -320,10 +305,7 @@ function HomeClient({ email }: { email?: string }) {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className='py-10 text-center text-sm text-zinc-500'>
-        &copy; {new Date().getFullYear()} ApnaAI. All rights reserved. &mdash; Free AI Chatbot for Websites
-      </footer>
+      <SiteFooter />
 
     </div>
   );

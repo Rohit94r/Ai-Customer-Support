@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import DashboardClient from '@/components/DashboardClient'
 import { getSession } from '@/lib/getSession'
 import { redirect } from 'next/navigation'
-import React from 'react'
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+  robots: { index: false, follow: false },
+};
 
 async function page (){
   const session=await getSession()

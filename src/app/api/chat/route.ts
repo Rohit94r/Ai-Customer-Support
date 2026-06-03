@@ -83,6 +83,10 @@ export async function POST(req: NextRequest) {
             messages: [{ role: "user", content: prompt }],
          });
          const text = completion.choices[0]?.message?.content || "No response";
+         await Settings.findOneAndUpdate(
+            { ownerId },
+            { $inc: { totalQuestions: 1 }, lastChatAt: new Date() }
+         );
          return NextResponse.json({ text, language: activeLanguage });
       } catch (apiError: Error | unknown) {
          const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);

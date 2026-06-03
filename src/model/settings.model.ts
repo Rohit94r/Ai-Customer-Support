@@ -9,6 +9,8 @@ interface ISettings{
    knowledge:string
    defaultLanguage:string
    supportedLanguages:string[]
+   totalQuestions:number
+   lastChatAt:Date | null
 }
 
 const settingsSchema=new Schema<ISettings>({
@@ -36,6 +38,14 @@ const settingsSchema=new Schema<ISettings>({
    supportedLanguages: {
       type: [String],
       default: [DEFAULT_CHAT_LANGUAGE, "hi-IN", "mr-IN", "gu-IN"],
+   },
+   totalQuestions: {
+      type: Number,
+      default: 0,
+   },
+   lastChatAt: {
+      type: Date,
+      default: null,
    },
 
 },{timestamps:true})
