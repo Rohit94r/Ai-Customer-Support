@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import LiveChatDemo from "@/components/LiveChatDemo";
 import SiteFooter from "@/components/SiteFooter";
+import FaqDemoVideo from "@/components/FaqDemoVideo";
 
 function HomeClient({ email }: { email?: string }) {
   const [loading, setLoading] = useState(false)
@@ -248,16 +249,19 @@ function HomeClient({ email }: { email?: string }) {
 
       </section>
       {/* FAQ */}
-      <section className='py-28 px-6'>
+      <section id="faq" className='py-28 px-6'>
         <div className='max-w-3xl mx-auto'>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: false }}
-            className='text-3xl font-semibold text-center mb-12'
+            className='text-3xl font-semibold text-center mb-4'
           >
             Frequently Asked Questions
           </motion.h2>
+          <p className="text-center text-zinc-500 text-sm mb-12 max-w-xl mx-auto">
+            Common questions about ApnaAI — scroll down to watch the demo with audio.
+          </p>
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{
@@ -287,6 +291,10 @@ function HomeClient({ email }: { email?: string }) {
               </motion.div>
             ))}
           </div>
+        </div>
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <FaqDemoVideo />
         </div>
       </section>
 
