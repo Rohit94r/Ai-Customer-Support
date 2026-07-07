@@ -83,6 +83,9 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  verification: {
+    google: "AmDif3ZxQ1mz0zom8vWyZ-FYbLJ711yJ5KsWeAqP2uM",
+  },
   other: {
     "geo.region": "IN",
   },
