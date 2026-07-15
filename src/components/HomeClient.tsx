@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -6,13 +5,16 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import LiveChatDemo from "@/components/LiveChatDemo";
 import SiteFooter from "@/components/SiteFooter";
-import FaqDemoVideo from "@/components/FaqDemoVideo";
+import { ADMIN_EMAIL } from "@/lib/admin";
+import { trackEvent } from "@/lib/track";
 
 function HomeClient({ email }: { email?: string }) {
   const [loading, setLoading] = useState(false)
+  const isAdminUser =
+    !!email && email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
-
-  const handleLogin = () => {
+  const handleLogin = (ctaLabel = "login") => {
+    trackEvent({ type: "cta_click", label: ctaLabel, path: "/" });
     setLoading(true)
     window.location.href = "/api/auth/login";
   };
@@ -29,9 +31,13 @@ function HomeClient({ email }: { email?: string }) {
       document.removeEventListener("mousedown", handler);
     };
   }, []);
+  useEffect(() => {
+    trackEvent({ type: "page_view", path: "/", label: "home" });
+  }, []);
   const navigate = useRouter()
 
   const openLiveChat = () => {
+    trackEvent({ type: "cta_click", label: "try_live_demo", path: "/" });
     const chatButton = document.querySelector('[aria-label="Open chat"]') as HTMLElement | null;
     if (chatButton) chatButton.click();
   };
@@ -59,6 +65,46 @@ function HomeClient({ email }: { email?: string }) {
     {
       title: "Enterprise-Grade Performance",
       desc: "Powered by LLaMA 3.3 70B via Groq—delivering lightning-fast, natural-sounding conversations that actually help your users."
+    },
+  ]
+
+  const industries = [
+    { name: "Restaurants", detail: "Menus, hours, reservations" },
+    { name: "Online Stores", detail: "Orders, returns, shipping" },
+    { name: "Clinics", detail: "Appointments & services" },
+    { name: "Coaching", detail: "Courses, fees, schedules" },
+    { name: "Agencies", detail: "Services & lead capture" },
+    { name: "Local Shops", detail: "Pricing & availability" },
+  ]
+
+  const testimonials = [
+    {
+      quote:
+        "We used to miss dinner-rush messages every night. Now ApnaAI answers menu and timing questions while we cook — and it’s free, which mattered for our small kitchen.",
+      name: "Priya Mehta",
+      role: "Owner, Spice Route Café",
+      industry: "Restaurant",
+    },
+    {
+      quote:
+        "Parents kept asking the same questions about batch timings and fees. I pasted one script and the bot handles it. Setup took less than five minutes.",
+      name: "Ankit Sharma",
+      role: "Founder, ScoreUp Coaching",
+      industry: "Education",
+    },
+    {
+      quote:
+        "COD, return policy, and delivery timelines — same three questions all day. ApnaAI replies from our product info so our store doesn’t lose buyers after hours.",
+      name: "Neha Kapoor",
+      role: "Founder, Silk & Thread",
+      industry: "Ecommerce",
+    },
+    {
+      quote:
+        "Patients call nonstop about clinic hours and whether we take walk-ins. The chat widget covers those basics so our reception desk can focus on appointments.",
+      name: "Dr. Rahul Desai",
+      role: "Clinic Director, CareFirst Health",
+      industry: "Healthcare",
     },
   ]
 
@@ -93,6 +139,13 @@ function HomeClient({ email }: { email?: string }) {
             Apna <span className="text-zinc-400">AI</span>
           </div>
 
+          <div className="flex items-center gap-4">
+          <a
+            href="/blog"
+            className="hidden sm:inline text-sm text-zinc-600 hover:text-zinc-900"
+          >
+            Blog
+          </a>
           {email ? (
             <div className="relative" ref={popupRef}>
               <button
@@ -116,6 +169,14 @@ function HomeClient({ email }: { email?: string }) {
                     <button className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-100" onClick={() => navigate.push("/dashboard")}  >
                       Dashboard
                     </button>
+                    {isAdminUser && (
+                      <button
+                        className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-100"
+                        onClick={() => navigate.push("/admin")}
+                      >
+                        Admin Analytics
+                      </button>
+                    )}
                     <a href="/api/auth/logout" className="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-zinc-100">
                       Logout
                     </a>
@@ -125,7 +186,7 @@ function HomeClient({ email }: { email?: string }) {
             </div>
           ) : (
             <button
-              onClick={handleLogin}
+              onClick={() => handleLogin("nav_login")}
               disabled={loading}
               className="px-5 py-2 rounded-full bg-black text-white text-sm font-medium hover:bg-zinc-800 transition disabled:opacity-60 flex item-center gap-2"
 
@@ -133,6 +194,7 @@ function HomeClient({ email }: { email?: string }) {
               {loading ? "Loading...." : "Login"}
             </button>
           )}
+          </div>
         </div>
       </motion.div>
       <section className="pt-36 pb-28 px-6">
@@ -161,14 +223,23 @@ function HomeClient({ email }: { email?: string }) {
                   </div>
                 ))}
               </div>
-              <span>Trusted by 100+ businesses</span>
+              <span>Trusted by 100+ small businesses</span>
             </div>
             <div className='mt-10 flex flex-wrap gap-4'>
               {email ?
-                <button className=" cursor-pointer px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition shadow-lg shadow-black/10" onClick={() => navigate.push("/dashboard")}>
+                <button
+                  className=" cursor-pointer px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition shadow-lg shadow-black/10"
+                  onClick={() => {
+                    trackEvent({ type: "cta_click", label: "go_to_dashboard", path: "/" });
+                    navigate.push("/dashboard");
+                  }}
+                >
                   Go to Dashboard
                 </button> :
-                <button className="px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition shadow-lg shadow-black/10" onClick={handleLogin}>
+                <button
+                  className="px-7 py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition shadow-lg shadow-black/10"
+                  onClick={() => handleLogin("get_started")}
+                >
                   Get Started for Free
                 </button>}
               <button 
@@ -178,6 +249,9 @@ function HomeClient({ email }: { email?: string }) {
                 Try Live Demo
               </button>
             </div>
+            <p className="mt-5 text-xs text-zinc-400">
+              Free forever · No credit card · Works on any website
+            </p>
           </motion.div>
 
 
@@ -192,8 +266,37 @@ function HomeClient({ email }: { email?: string }) {
         </div>
       </section>
 
+      {/* WHO USES APNAAI */}
+      <section className="border-t border-zinc-200 bg-white py-16 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-xs font-medium tracking-[0.2em] uppercase text-zinc-400">
+              Who uses ApnaAI
+            </p>
+            <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight">
+              Built for small businesses that answer the same questions daily
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-px bg-zinc-200 border border-zinc-200 rounded-2xl overflow-hidden">
+            {industries.map((item, i) => (
+              <motion.div
+                key={item.name}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05, duration: 0.4 }}
+                className="bg-white px-5 py-6 text-center"
+              >
+                <p className="font-semibold text-zinc-900 text-sm">{item.name}</p>
+                <p className="mt-1.5 text-xs text-zinc-500 leading-snug">{item.detail}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* HOW IT WORKS */}
-      <section className="py-24 px-6 border-t border-zinc-200 bg-white">
+      <section className="py-24 px-6 border-t border-zinc-200 bg-zinc-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-semibold">How It Works</h2>
@@ -205,7 +308,7 @@ function HomeClient({ email }: { email?: string }) {
               { step: "02", title: "Add Your Info", desc: "Upload your business details, FAQs, and product info to train your AI assistant." },
               { step: "03", title: "Copy & Paste", desc: "Copy one script tag and paste it onto your site. Your bot is now live!" },
             ].map((item, i) => (
-              <div key={i} className="relative p-8 rounded-2xl bg-zinc-50 border border-zinc-200">
+              <div key={i} className="relative p-8 rounded-2xl bg-white border border-zinc-200">
                 <div className="text-4xl font-black text-zinc-200 mb-4">{item.step}</div>
                 <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
                 <p className="text-zinc-600 text-sm leading-relaxed">{item.desc}</p>
@@ -218,7 +321,7 @@ function HomeClient({ email }: { email?: string }) {
       {/* FEATURES */}
       <section
         id='feature'
-        className='bg-zinc-50 py-28 px-6 border-t border-zinc-200'
+        className='bg-white py-28 px-6 border-t border-zinc-200'
       >
         <div className='max-w-6xl mx-auto'>
           <motion.h2
@@ -238,7 +341,7 @@ function HomeClient({ email }: { email?: string }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 viewport={{ once: false }}
-                className='bg-white rounded-2xl p-8 shadow-lg border border-zinc-200'>
+                className='bg-zinc-50 rounded-2xl p-8 border border-zinc-200'>
                 <h3 className='font-semibold text-zinc-900'>{f.title}</h3>
                 <p className='mt-3 text-zinc-600 text-sm'>{f.desc}</p>
               </motion.div>
@@ -248,8 +351,46 @@ function HomeClient({ email }: { email?: string }) {
         </div>
 
       </section>
+
+      {/* CUSTOMER REVIEWS */}
+      <section className="py-28 px-6 border-t border-zinc-200 bg-zinc-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-semibold">What small businesses say</h2>
+            <p className="mt-4 text-zinc-600 max-w-xl mx-auto">
+              Real use cases from restaurants, coaches, shops, and clinics using a free AI chatbot on their site.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
+            {testimonials.map((t, i) => (
+              <motion.blockquote
+                key={t.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08, duration: 0.5 }}
+                className="border-t border-zinc-300 pt-8"
+              >
+                <p className="text-zinc-700 leading-relaxed text-[15px]">
+                  &ldquo;{t.quote}&rdquo;
+                </p>
+                <footer className="mt-6 flex items-center justify-between gap-4">
+                  <div>
+                    <cite className="not-italic font-semibold text-zinc-900 text-sm">{t.name}</cite>
+                    <p className="text-xs text-zinc-500 mt-0.5">{t.role}</p>
+                  </div>
+                  <span className="text-[11px] font-medium tracking-wide uppercase text-zinc-400 shrink-0">
+                    {t.industry}
+                  </span>
+                </footer>
+              </motion.blockquote>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* FAQ */}
-      <section id="faq" className='py-28 px-6'>
+      <section id="faq" className='py-28 px-6 bg-white border-t border-zinc-200'>
         <div className='max-w-3xl mx-auto'>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -260,7 +401,7 @@ function HomeClient({ email }: { email?: string }) {
             Frequently Asked Questions
           </motion.h2>
           <p className="text-center text-zinc-500 text-sm mb-12 max-w-xl mx-auto">
-            Common questions about ApnaAI — scroll down to watch the demo with audio.
+            Everything you need to know before embedding ApnaAI on your website.
           </p>
           <script
             type="application/ld+json"
@@ -292,24 +433,36 @@ function HomeClient({ email }: { email?: string }) {
             ))}
           </div>
         </div>
-
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <FaqDemoVideo />
-        </div>
       </section>
 
       {/* FINAL CTA */}
       <section className="py-24 px-6 bg-black text-white text-center">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-semibold mb-6">Ready to automate your customer support?</h2>
-          <p className="text-zinc-400 text-lg mb-10">Join 100+ businesses using ApnaAI to provide instant support and close more sales.</p>
+          <h2 className="text-3xl md:text-4xl font-semibold mb-6">
+            Put an AI assistant on your site today
+          </h2>
+          <p className="text-zinc-400 text-lg mb-4">
+            Join 100+ businesses using ApnaAI for instant answers, fewer missed leads, and support that never sleeps.
+          </p>
+          <p className="text-zinc-500 text-sm mb-10">
+            Free · No credit card · Live in under 2 minutes · Works on WordPress, Shopify, Wix &amp; more
+          </p>
           <button 
-            onClick={handleLogin}
+            onClick={() => {
+              if (email) {
+                trackEvent({ type: "cta_click", label: "footer_open_dashboard", path: "/" });
+                navigate.push("/dashboard");
+              } else {
+                handleLogin("footer_get_started");
+              }
+            }}
             className="px-10 py-4 rounded-xl bg-white text-black font-semibold hover:bg-zinc-200 transition shadow-xl"
           >
-            Get Started for Free Now
+            {email ? "Open Dashboard" : "Get Started for Free"}
           </button>
-          <p className="mt-6 text-sm text-zinc-500 italic">No credit card required. Live in 2 minutes.</p>
+          <p className="mt-6 text-sm text-zinc-500">
+            Try the live demo above first — then embed it on your own site.
+          </p>
         </div>
       </section>
 

@@ -71,6 +71,18 @@ export default function SiteFooter() {
           .
         </p>
 
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm">
+          <a href="/blog" className="text-zinc-600 hover:text-zinc-900 hover:underline">
+            Blog
+          </a>
+          <a href="/api/auth/login" className="text-zinc-600 hover:text-zinc-900 hover:underline">
+            Get free chatbot
+          </a>
+          <a href="/" className="text-zinc-600 hover:text-zinc-900 hover:underline">
+            Home
+          </a>
+        </div>
+
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           {SOCIAL_LINKS.map((link) => (
             <a

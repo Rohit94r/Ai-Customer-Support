@@ -73,7 +73,13 @@ function formatLastChat(dateStr: string | null | undefined) {
   return `${days} day${days > 1 ? 's' : ''} ago`
 }
 
-function DashboardClient({ ownerId }: { ownerId: string }) {
+function DashboardClient({
+  ownerId,
+  isAdminUser = false,
+}: {
+  ownerId: string
+  isAdminUser?: boolean
+}) {
   const navigate = useRouter()
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   const [activeTab, setActiveTab] = React.useState<DashboardTab>('settings')
@@ -227,9 +233,20 @@ function DashboardClient({ ownerId }: { ownerId: string }) {
           >
             Apna <span className="text-zinc-400">AI</span>
           </div>
-          <a href="/api/auth/logout" className="text-sm text-zinc-600 hover:text-zinc-900">
-            Logout
-          </a>
+          <div className="flex items-center gap-4">
+            {isAdminUser && (
+              <button
+                type="button"
+                onClick={() => navigate.push('/admin')}
+                className="text-sm text-zinc-600 hover:text-zinc-900"
+              >
+                Admin Analytics
+              </button>
+            )}
+            <a href="/api/auth/logout" className="text-sm text-zinc-600 hover:text-zinc-900">
+              Logout
+            </a>
+          </div>
         </div>
       </motion.div>
 
@@ -250,6 +267,16 @@ function DashboardClient({ ownerId }: { ownerId: string }) {
                 {tab.label}
               </button>
             ))}
+            {isAdminUser && (
+              <button
+                key="admin"
+                type="button"
+                onClick={() => navigate.push('/admin')}
+                className="shrink-0 px-4 py-2.5 rounded-lg text-sm font-medium transition whitespace-nowrap text-zinc-600 hover:bg-zinc-100 border border-dashed border-zinc-300"
+              >
+                Platform Admin
+              </button>
+            )}
           </nav>
         </div>
       </div>
