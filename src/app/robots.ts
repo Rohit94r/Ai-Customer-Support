@@ -4,7 +4,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: "/",
+      allow: ["/", "/blog", "/blog/"],
       disallow: ["/api/", "/dashboard/", "/embed/"],
     },
     sitemap: "https://apnaai.online/sitemap.xml",
