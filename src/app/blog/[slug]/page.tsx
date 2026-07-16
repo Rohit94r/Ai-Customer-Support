@@ -39,6 +39,15 @@ export default async function BlogPostPage({ params }: Props) {
   const related = getRelatedPosts(post);
   const articleLd = buildArticleJsonLd(post);
   const faqLd = buildFaqJsonLd(post);
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://apnaai.online" },
+      { "@type": "ListItem", position: 2, name: "Blog", item: "https://apnaai.online/blog" },
+      { "@type": "ListItem", position: 3, name: post.title, item: `https://apnaai.online/blog/${post.slug}` },
+    ],
+  };
 
   return (
     <BlogShell>
@@ -169,6 +178,10 @@ export default async function BlogPostPage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
       {faqLd ? (
         <script

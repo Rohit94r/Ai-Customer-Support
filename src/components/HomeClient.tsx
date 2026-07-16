@@ -435,6 +435,57 @@ function HomeClient({ email }: { email?: string }) {
         </div>
       </section>
 
+      {/* BLOG SECTION */}
+      <section className="py-24 px-6 bg-zinc-50">
+        <div className="mx-auto max-w-5xl">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false }}
+            className="text-3xl md:text-4xl font-bold text-center text-zinc-900"
+          >
+            Industry guides & resources
+          </motion.h2>
+          <p className="mt-3 text-center text-zinc-500 text-sm mb-12 max-w-xl mx-auto">
+            20+ practical guides to help you add a free AI chatbot to your website — built for Indian small businesses.
+          </p>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              { title: "Chatbot for Restaurant Website", slug: "free-chatbot-for-restaurant-website" },
+              { title: "Chatbot for Ecommerce Website", slug: "free-ai-chatbot-for-ecommerce-website" },
+              { title: "Chatbot for Coaching Institute", slug: "chatbot-for-coaching-institute-website" },
+              { title: "Chatbot for Clinic & Hospital", slug: "chatbot-for-hospital-clinic-website-india" },
+              { title: "Chatbot for Real Estate Website", slug: "chatbot-for-real-estate-website-india" },
+              { title: "Chatbot for Salon & Beauty Parlour", slug: "chatbot-for-salon-parlour-website-india" },
+              { title: "Benefits of AI Chatbot for Business", slug: "benefits-ai-chatbot-small-business" },
+              { title: "Free Live Chat Widget Comparison", slug: "free-live-chat-widget-website" },
+              { title: "How to Add Free AI Chatbot", slug: "how-to-add-free-ai-chatbot-to-website" },
+            ].map((post, i) => (
+              <motion.a
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                viewport={{ once: false }}
+                className="rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left hover:border-zinc-400 hover:shadow-sm transition"
+              >
+                <p className="text-sm font-medium text-zinc-900">{post.title}</p>
+                <p className="mt-1 text-xs text-zinc-500">Read guide →</p>
+              </motion.a>
+            ))}
+          </div>
+          <div className="mt-10 text-center">
+            <a
+              href="/blog"
+              className="inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-white px-6 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
+            >
+              View all guides →
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* FINAL CTA */}
       <section className="py-24 px-6 bg-black text-white text-center">
         <div className="max-w-3xl mx-auto">

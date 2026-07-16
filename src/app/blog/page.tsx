@@ -6,18 +6,37 @@ import { blogPosts } from "@/content/blogs";
 export const metadata: Metadata = {
   title: "ApnaAI Blog — Free AI Chatbot Guides for Indian Businesses",
   description:
-    "Practical guides on adding a free AI chatbot to your website — restaurants, ecommerce, coaching, clinics, real estate, and more. Setup in minutes with ApnaAI.",
+    "20+ practical guides on adding a free AI chatbot to your website — restaurants, ecommerce, coaching, clinics, real estate, dental, hotels, lawyers, travel, education, car dealerships, wedding planners, salons, gyms, and more. Setup in minutes with ApnaAI.",
   alternates: { canonical: "https://apnaai.online/blog" },
   openGraph: {
     title: "ApnaAI Blog — Free AI Chatbot Guides",
     description:
-      "Learn how to add a free AI chatbot to your website. Guides for Indian small businesses.",
+      "20+ guides on how to add a free AI chatbot to your website. Industry-specific tutorials for Indian small businesses.",
     url: "https://apnaai.online/blog",
     siteName: "ApnaAI",
     locale: "en_IN",
     type: "website",
   },
   robots: { index: true, follow: true },
+  keywords: [
+    "AI chatbot guide",
+    "free chatbot India",
+    "chatbot for small business",
+    "restaurant chatbot",
+    "ecommerce chatbot",
+    "coaching chatbot",
+    "clinic chatbot",
+    "real estate chatbot",
+    "dental chatbot",
+    "hotel chatbot",
+    "lawyer chatbot",
+    "travel chatbot",
+    "education chatbot",
+    "car dealership chatbot",
+    "wedding planner chatbot",
+    "salon chatbot",
+    "gym chatbot",
+  ],
 };
 
 function formatDate(iso: string) {
@@ -28,9 +47,31 @@ function formatDate(iso: string) {
   });
 }
 
+function BlogStructuredData() {
+  const blogLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "ApnaAI Blog — Free AI Chatbot Guides for Indian Businesses",
+    description:
+      "20+ practical guides on adding a free AI chatbot to websites for Indian small businesses.",
+    url: "https://apnaai.online/blog",
+    about: {
+      "@type": "Thing",
+      name: "AI Chatbot for Small Business",
+    },
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(blogLd) }}
+    />
+  );
+}
+
 export default function BlogIndexPage() {
   return (
     <BlogShell>
+      <BlogStructuredData />
       <section className="px-6 pt-16 pb-8">
         <div className="mx-auto max-w-3xl">
           <p className="text-sm font-medium uppercase tracking-wider text-zinc-500">
@@ -45,7 +86,7 @@ export default function BlogIndexPage() {
             <Link href="/" className="underline underline-offset-2">
               free ApnaAI chatbot
             </Link>{" "}
-            in minutes.
+            in minutes. {blogPosts.length}+ industry-specific guides available.
           </p>
         </div>
       </section>
