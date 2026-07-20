@@ -20,7 +20,42 @@ import { post as benefits } from "./benefits-ai-chatbot-small-business";
 import { post as liveChat } from "./free-live-chat-widget-website";
 import { post as customerService } from "./ai-chatbot-customer-service-benefits";
 
+// New industry-specific blogs
+import { post as pharmacy } from "./chatbot-for-pharmacy-medical-store-website-india";
+import { post as ca } from "./chatbot-for-ca-chartered-accountant-website-india";
+import { post as insurance } from "./chatbot-for-insurance-agent-website-india";
+import { post as interiorDesigner } from "./chatbot-for-interior-designer-website-india";
+import { post as photographer } from "./chatbot-for-photographer-website-india";
+import { post as eventManagement } from "./chatbot-for-event-management-company-website-india";
+import { post as vetPetClinic } from "./chatbot-for-vet-pet-clinic-website-india";
+import { post as jewellery } from "./chatbot-for-jewellery-store-website-india";
+import { post as bakery } from "./chatbot-for-bakery-cake-shop-website-india";
+import { post as tiffin } from "./chatbot-for-tiffin-service-website-india";
+import { post as grocery } from "./chatbot-for-grocery-supermarket-website-india";
+import { post as mobileShop } from "./chatbot-for-mobile-shop-website-india";
+import { post as tuition } from "./chatbot-for-tuition-teacher-website-india";
+import { post as dance } from "./chatbot-for-dance-academy-website-india";
+import { post as yoga } from "./chatbot-for-yoga-meditation-center-website-india";
+import { post as spa } from "./chatbot-for-spa-massage-center-website-india";
+import { post as makeup } from "./chatbot-for-makeup-artist-website-india";
+import { post as catering } from "./chatbot-for-catering-service-website-india";
+import { post as pathology } from "./chatbot-for-pathology-lab-website-india";
+import { post as physio } from "./chatbot-for-physiotherapist-website-india";
+import { post as astrologer } from "./chatbot-for-astrologer-website-india";
+import { post as pgHostel } from "./chatbot-for-pg-hostel-website-india";
+import { post as furniture } from "./chatbot-for-furniture-store-website-india";
+import { post as stationery } from "./chatbot-for-stationery-bookshop-website-india";
+import { post as florist } from "./chatbot-for-florist-gift-shop-website-india";
+
+// New platform-integration blogs
+import { post as wordpress } from "./add-free-ai-chatbot-to-wordpress-website";
+import { post as shopify } from "./add-free-ai-chatbot-to-shopify-store";
+import { post as wix } from "./add-free-ai-chatbot-to-wix-website";
+import { post as html } from "./add-free-ai-chatbot-to-html-website";
+import { post as blogger } from "./add-free-ai-chatbot-to-blogger-website";
+
 export const blogPosts: BlogPost[] = [
+  // Original guides
   howToAdd,
   restaurant,
   coaching,
@@ -41,6 +76,40 @@ export const blogPosts: BlogPost[] = [
   benefits,
   liveChat,
   customerService,
+
+  // Industry-specific guides
+  pharmacy,
+  ca,
+  insurance,
+  interiorDesigner,
+  photographer,
+  eventManagement,
+  vetPetClinic,
+  jewellery,
+  bakery,
+  tiffin,
+  grocery,
+  mobileShop,
+  tuition,
+  dance,
+  yoga,
+  spa,
+  makeup,
+  catering,
+  pathology,
+  physio,
+  astrologer,
+  pgHostel,
+  furniture,
+  stationery,
+  florist,
+
+  // Platform-integration guides
+  wordpress,
+  shopify,
+  wix,
+  html,
+  blogger,
 ].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
 export function getPostBySlug(slug: string): BlogPost | undefined {

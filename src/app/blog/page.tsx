@@ -4,18 +4,25 @@ import BlogShell from "@/components/BlogShell";
 import { blogPosts } from "@/content/blogs";
 
 export const metadata: Metadata = {
-  title: "ApnaAI Blog — Free AI Chatbot Guides for Indian Businesses",
+  title: "ApnaAI Blog — 50+ Free AI Chatbot Guides for Indian Small Businesses",
   description:
-    "20+ practical guides on adding a free AI chatbot to your website — restaurants, ecommerce, coaching, clinics, real estate, dental, hotels, lawyers, travel, education, car dealerships, wedding planners, salons, gyms, and more. Setup in minutes with ApnaAI.",
+    "50+ practical guides on adding a free AI chatbot to your website — restaurants, ecommerce, coaching, clinics, real estate, dental, hotels, lawyers, travel, education, car dealerships, wedding planners, salons, gyms, pharmacy, CA, insurance, interior designer, photographer, event management, vet, jewellery, bakery, tiffin, grocery, mobile shop, tuition, dance, yoga, spa, makeup, catering, pathology, physio, astrologer, PG, furniture, stationery, florist, WordPress, Shopify, Wix, HTML, Blogger. Setup in minutes with ApnaAI.",
   alternates: { canonical: "https://apnaai.online/blog" },
   openGraph: {
-    title: "ApnaAI Blog — Free AI Chatbot Guides",
+    title: "ApnaAI Blog — 50+ Free AI Chatbot Guides for Indian Businesses",
     description:
-      "20+ guides on how to add a free AI chatbot to your website. Industry-specific tutorials for Indian small businesses.",
+      "50+ industry-specific guides on how to add a free AI chatbot to your website. Tutorials for Indian small businesses across 40+ niches and 5 website platforms.",
     url: "https://apnaai.online/blog",
     siteName: "ApnaAI",
     locale: "en_IN",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ApnaAI Blog — 50+ Free AI Chatbot Guides",
+    description:
+      "50+ industry-specific guides to add a free AI chatbot to your Indian small business website.",
+    images: ["https://apnaai.online/og-image.png"],
   },
   robots: { index: true, follow: true },
   keywords: [
@@ -36,6 +43,36 @@ export const metadata: Metadata = {
     "wedding planner chatbot",
     "salon chatbot",
     "gym chatbot",
+    "pharmacy chatbot",
+    "CA chatbot",
+    "insurance chatbot",
+    "interior designer chatbot",
+    "photographer chatbot",
+    "event management chatbot",
+    "vet chatbot",
+    "jewellery chatbot",
+    "bakery chatbot",
+    "tiffin service chatbot",
+    "grocery chatbot",
+    "mobile shop chatbot",
+    "tuition chatbot",
+    "dance academy chatbot",
+    "yoga center chatbot",
+    "spa chatbot",
+    "makeup artist chatbot",
+    "catering chatbot",
+    "pathology lab chatbot",
+    "physiotherapist chatbot",
+    "astrologer chatbot",
+    "PG hostel chatbot",
+    "furniture chatbot",
+    "stationery chatbot",
+    "florist chatbot",
+    "WordPress chatbot",
+    "Shopify chatbot",
+    "Wix chatbot",
+    "HTML chatbot",
+    "Blogger chatbot",
   ],
 };
 
@@ -51,9 +88,9 @@ function BlogStructuredData() {
   const blogLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "ApnaAI Blog — Free AI Chatbot Guides for Indian Businesses",
+    name: "ApnaAI Blog — 50+ Free AI Chatbot Guides for Indian Small Businesses",
     description:
-      "20+ practical guides on adding a free AI chatbot to websites for Indian small businesses.",
+      "50+ practical guides on adding a free AI chatbot to websites for Indian small businesses across 40+ industries and 5 website platforms.",
     url: "https://apnaai.online/blog",
     about: {
       "@type": "Thing",
@@ -86,7 +123,7 @@ export default function BlogIndexPage() {
             <Link href="/" className="underline underline-offset-2">
               free ApnaAI chatbot
             </Link>{" "}
-            in minutes. {blogPosts.length}+ industry-specific guides available.
+            in minutes. {blogPosts.length}+ industry-specific guides available — covering 40+ niches and 5 website platforms (WordPress, Shopify, Wix, HTML, Blogger).
           </p>
         </div>
       </section>
