@@ -14,6 +14,21 @@ export const metadata: Metadata = {
     siteName: "ApnaAI",
     locale: "en_IN",
     type: "website",
+    images: [
+      {
+        url: "https://apnaai.online/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ApnaAI free AI chatbot for websites",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ApnaAI — Free AI Chatbot for Your Website",
+    description:
+      "Train on your FAQs, embed one script tag, and answer customers 24/7 on WordPress, Shopify, or any website.",
+    images: ["https://apnaai.online/og-image.png"],
   },
   keywords: [
     "free AI chatbot",

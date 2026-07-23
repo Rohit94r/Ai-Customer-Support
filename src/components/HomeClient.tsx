@@ -126,6 +126,12 @@ function HomeClient({ email }: { email?: string }) {
       a: "You add your business information — products, pricing, FAQs, policies — in the dashboard. The AI uses only your knowledge base to answer customer questions."
     },
   ]
+  const popularGuides = [
+    { label: "WordPress chatbot setup", href: "/blog/add-free-ai-chatbot-to-wordpress-website" },
+    { label: "Shopify chatbot setup", href: "/blog/add-free-ai-chatbot-to-shopify-store" },
+    { label: "Restaurant chatbot guide", href: "/blog/free-chatbot-for-restaurant-website" },
+    { label: "Small business benefits", href: "/blog/benefits-ai-chatbot-small-business" },
+  ]
   return (
     <div className="min-h-screen bg-linear-to-br from-white to-zinc-50 text-zinc-900 overflow-x-hidden">
       <motion.div
@@ -252,6 +258,17 @@ function HomeClient({ email }: { email?: string }) {
             <p className="mt-5 text-xs text-zinc-400">
               Free forever · No credit card · Works on any website
             </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {popularGuides.map((guide) => (
+                <a
+                  key={guide.href}
+                  href={guide.href}
+                  className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-600 hover:border-zinc-300 hover:text-zinc-900"
+                >
+                  {guide.label}
+                </a>
+              ))}
+            </div>
           </motion.div>
 
 

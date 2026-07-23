@@ -64,7 +64,7 @@ export function buildFaqJsonLd(post: BlogPost) {
 export function buildArticleJsonLd(post: BlogPost) {
   return {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
     headline: post.title,
     description: post.description,
     datePublished: post.date,
@@ -83,6 +83,16 @@ export function buildArticleJsonLd(post: BlogPost) {
       },
     },
     mainEntityOfPage: postUrl(post.slug),
+    isPartOf: {
+      "@type": "Blog",
+      name: "ApnaAI Blog",
+      url: `${SITE}/blog`,
+    },
+    about: {
+      "@type": "SoftwareApplication",
+      name: "ApnaAI",
+      url: SITE,
+    },
     keywords: [post.keyword, ...post.tags].join(", "),
   };
 }

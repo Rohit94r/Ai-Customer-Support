@@ -6,6 +6,27 @@ import axios from 'axios'
 import { CHAT_LANGUAGES, DEFAULT_CHAT_LANGUAGE, type ChatLanguageCode } from '@/lib/chatLanguages'
 
 type DashboardTab = 'settings' | 'embed' | 'analytics'
+type QuestionVariant = {
+  question: string
+  askedAt: string
+}
+
+type QuestionInsight = {
+  _id?: string
+  latestQuestion: string
+  normalizedQuestion: string
+  askedCount: number
+  cacheHits: number
+  responseLanguage: string
+  lastAskedAt: string
+  recentQuestions?: QuestionVariant[]
+}
+
+type AnalyticsSummary = {
+  uniqueQuestions: number
+  cachedResponsesServed: number
+  repeatedQuestions: number
+}
 
 const SAMPLE_TEMPLATE = `BUSINESS: __________ [Your Shop Name]
 WEBSITE: __________ [Your Website URL]
@@ -73,6 +94,16 @@ function formatLastChat(dateStr: string | null | undefined) {
   return `${days} day${days > 1 ? 's' : ''} ago`
 }
 
+function formatQuestionTimestamp(dateStr: string | null | undefined) {
+  if (!dateStr) return 'No recent activity'
+  return new Date(dateStr).toLocaleString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
 function DashboardClient({
   ownerId,
   isAdminUser = false,
@@ -92,6 +123,13 @@ function DashboardClient({
   )
   const [totalQuestions, setTotalQuestions] = React.useState(0)
   const [lastChatAt, setLastChatAt] = React.useState<string | null>(null)
+  const [recentQuestions, setRecentQuestions] = React.useState<QuestionInsight[]>([])
+  const [topQuestions, setTopQuestions] = React.useState<QuestionInsight[]>([])
+  const [analyticsSummary, setAnalyticsSummary] = React.useState<AnalyticsSummary>({
+    uniqueQuestions: 0,
+    cachedResponsesServed: 0,
+    repeatedQuestions: 0,
+  })
   const [loading, setLoading] = React.useState(false)
   const [saved, setSaved] = React.useState(false)
   const [embedCopied, setEmbedCopied] = React.useState(false)
@@ -148,8 +186,28 @@ function DashboardClient({
     }
   }
 
+  const loadAnalytics = async () => {
+    try {
+      const result = await axios.post('/api/chat/analytics', { ownerId })
+      setRecentQuestions(result.data.recentQuestions || [])
+      setTopQuestions(result.data.topQuestions || [])
+      setAnalyticsSummary(
+        result.data.summary || {
+          uniqueQuestions: 0,
+          cachedResponsesServed: 0,
+          repeatedQuestions: 0,
+        }
+      )
+    } catch (error) {
+      console.log('Error:', error)
+    }
+  }
+
   useEffect(() => {
-    if (ownerId) loadSettings()
+    if (ownerId) {
+      loadSettings()
+      loadAnalytics()
+    }
   }, [ownerId])
 
   const handleSettings = async () => {
@@ -165,7 +223,7 @@ function DashboardClient({
       })
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
-      await loadSettings()
+      await Promise.all([loadSettings(), loadAnalytics()])
     } catch (error) {
       console.log('Error:', error)
     } finally {
@@ -509,7 +567,7 @@ function DashboardClient({
               <div className="mb-8">
                 <h1 className="text-2xl font-semibold">Chatbot Responses</h1>
                 <p className="text-zinc-500 mt-1">
-                  Live stats from visitors using your embedded chatbot.
+                  Live stats, recent customer questions, and repeated-question trends from your embedded chatbot.
                 </p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -523,6 +581,16 @@ function DashboardClient({
                   <p className="text-2xl font-semibold mt-2">{formatLastChat(lastChatAt)}</p>
                   <p className="text-xs text-zinc-500 mt-2">Updates when someone uses your widget</p>
                 </div>
+                <div className="rounded-2xl border border-zinc-200 p-6 bg-zinc-50">
+                  <p className="text-xs uppercase tracking-wide text-zinc-500 font-medium">Unique questions cached</p>
+                  <p className="text-4xl font-semibold mt-2">{analyticsSummary.uniqueQuestions}</p>
+                  <p className="text-xs text-zinc-500 mt-2">Distinct normalized questions stored for this chatbot</p>
+                </div>
+                <div className="rounded-2xl border border-zinc-200 p-6 bg-zinc-50">
+                  <p className="text-xs uppercase tracking-wide text-zinc-500 font-medium">Cached replies served</p>
+                  <p className="text-4xl font-semibold mt-2">{analyticsSummary.cachedResponsesServed}</p>
+                  <p className="text-xs text-zinc-500 mt-2">Repeat questions answered instantly from saved responses</p>
+                </div>
                 <div className="rounded-2xl border border-zinc-200 p-6 sm:col-span-2">
                   <p className="text-xs uppercase tracking-wide text-zinc-500 font-medium">Your chatbot</p>
                   <p className="text-lg font-semibold mt-2">{businessName || 'Not configured yet'}</p>
@@ -533,9 +601,104 @@ function DashboardClient({
                   </p>
                 </div>
               </div>
+              <div className="mt-8 grid grid-cols-1 xl:grid-cols-[1.4fr_1fr] gap-6">
+                <div className="rounded-2xl border border-zinc-200 bg-white p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h2 className="text-lg font-semibold">Recent customer questions</h2>
+                      <p className="text-sm text-zinc-500 mt-1">
+                        Latest phrasing customers used, including repeated questions.
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-600">
+                      {recentQuestions.length} tracked
+                    </span>
+                  </div>
+                  <div className="mt-5 space-y-3">
+                    {recentQuestions.length ? recentQuestions.map((question) => (
+                      <div key={`${question.normalizedQuestion}-${question.responseLanguage}`} className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-zinc-600 border border-zinc-200">
+                            {question.responseLanguage}
+                          </span>
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-zinc-600 border border-zinc-200">
+                            Asked {question.askedCount} time{question.askedCount > 1 ? 's' : ''}
+                          </span>
+                          {question.cacheHits > 0 && (
+                            <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 border border-emerald-200">
+                              Cache reused {question.cacheHits} time{question.cacheHits > 1 ? 's' : ''}
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-3 text-sm font-medium text-zinc-900">{question.latestQuestion}</p>
+                        <p className="mt-2 text-xs text-zinc-500">
+                          Last seen {formatQuestionTimestamp(question.lastAskedAt)}
+                        </p>
+                        {question.recentQuestions && question.recentQuestions.length > 1 && (
+                          <div className="mt-3 rounded-lg border border-zinc-200 bg-white p-3">
+                            <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+                              Recent variants
+                            </p>
+                            <div className="mt-2 space-y-2">
+                              {question.recentQuestions.slice(0, 3).map((variant, index) => (
+                                <div key={`${variant.question}-${index}`} className="text-xs text-zinc-600">
+                                  <span className="font-medium text-zinc-800">{variant.question}</span>
+                                  <span className="ml-2 text-zinc-400">{formatQuestionTimestamp(variant.askedAt)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )) : (
+                      <p className="rounded-xl border border-dashed border-zinc-300 p-4 text-sm text-zinc-500">
+                        No customer questions yet. Once visitors chat with your bot, they will appear here.
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-zinc-200 bg-white p-6">
+                  <div>
+                    <h2 className="text-lg font-semibold">Top repeated questions</h2>
+                    <p className="text-sm text-zinc-500 mt-1">
+                      Questions customers ask most often, useful for improving your knowledge base.
+                    </p>
+                  </div>
+                  <div className="mt-5 space-y-3">
+                    {topQuestions.length ? topQuestions.map((question, index) => (
+                      <div key={`${question.normalizedQuestion}-${index}`} className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-xs font-medium text-zinc-500">#{index + 1}</span>
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-zinc-600 border border-zinc-200">
+                            {question.askedCount} asks
+                          </span>
+                        </div>
+                        <p className="mt-3 text-sm font-medium text-zinc-900">{question.latestQuestion}</p>
+                        <p className="mt-2 text-xs text-zinc-500">
+                          Last seen {formatQuestionTimestamp(question.lastAskedAt)}
+                        </p>
+                      </div>
+                    )) : (
+                      <p className="rounded-xl border border-dashed border-zinc-300 p-4 text-sm text-zinc-500">
+                        Repeated questions will show here automatically after visitors start using the chatbot.
+                      </p>
+                    )}
+                  </div>
+                  <div className="mt-5 rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+                    <p className="text-xs uppercase tracking-wide text-zinc-500 font-medium">Repeated question groups</p>
+                    <p className="mt-2 text-2xl font-semibold text-zinc-900">{analyticsSummary.repeatedQuestions}</p>
+                    <p className="mt-2 text-xs text-zinc-500">
+                      Count of cached question groups that have been asked more than once.
+                    </p>
+                  </div>
+                </div>
+              </div>
               <button
                 type="button"
-                onClick={loadSettings}
+                onClick={() => {
+                  loadSettings()
+                  loadAnalytics()
+                }}
                 className="mt-6 text-sm text-zinc-600 hover:text-zinc-900 underline"
               >
                 Refresh stats

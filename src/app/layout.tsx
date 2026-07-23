@@ -23,6 +23,12 @@ export const metadata: Metadata = {
   description:
     "ApnaAI is a free AI customer support chatbot for any website. Embed in 2 minutes on WordPress, Shopify, or HTML. 24/7 answers trained on your business — no coding required.",
   applicationName: "ApnaAI",
+  referrer: "origin-when-cross-origin",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   authors: [{ name: "Rohit Jadhav", url: "https://www.rohitjadhav.online/" }],
   creator: "Rohit Jadhav",
   publisher: "ApnaAI",
@@ -63,6 +69,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://apnaai.online"),
   alternates: {
     canonical: "https://apnaai.online",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
   },
   openGraph: {
     title: "ApnaAI — Free AI Chatbot for Your Website",
@@ -127,10 +138,22 @@ const structuredData = [
       "Free AI-powered customer support chatbot you can embed on any website in minutes. No coding required.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
+    featureList: [
+      "AI customer support widget",
+      "No-code website chatbot embed",
+      "FAQ and business knowledge responses",
+      "24/7 customer question handling",
+      "Multilingual customer support",
+    ],
+    brand: {
+      "@type": "Brand",
+      name: "ApnaAI",
+    },
     offers: {
       "@type": "Offer",
       price: "0",
       priceCurrency: "INR",
+      availability: "https://schema.org/InStock",
     },
     creator: {
       "@type": "Person",
@@ -158,7 +181,25 @@ const structuredData = [
     sameAs: [
       "https://github.com/Rohit94r/Ai-Customer-Support",
       "https://www.linkedin.com/in/rohit-jadhav94/",
+      "https://x.com/RohitJadhav9409",
     ],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "ApnaAI Home",
+    url: "https://apnaai.online",
+    description:
+      "Free AI chatbot for websites that answers customer questions using your business knowledge base.",
+    isPartOf: {
+      "@type": "WebSite",
+      name: "ApnaAI",
+      url: "https://apnaai.online",
+    },
+    about: {
+      "@type": "SoftwareApplication",
+      name: "ApnaAI",
+    },
   },
 ];
 
