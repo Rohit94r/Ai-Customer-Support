@@ -1,4 +1,6 @@
 import connectDb from "@/lib/db";
+import { checkRateLimit } from "@/lib/rateLimit";
+import { validateOwnerId } from "@/lib/validation";
 import Settings from "@/model/settings.model";
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
@@ -6,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const {
-      ownerId,
+      ownerId: rawOwnerId,
       businessName,
       businessType,
       website,
@@ -18,10 +20,21 @@ export async function POST(req: NextRequest) {
       supportedLanguages,
     } = await req.json();
 
+    const ownerId = validateOwnerId(rawOwnerId);
     if (!ownerId || !businessName?.trim()) {
       return NextResponse.json(
         { message: "Owner ID and business name are required" },
         { status: 400 }
+      );
+    }
+
+    const limit = checkRateLimit(`template:${ownerId}`, 5, 60 * 60 * 1000);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        {
+          message: `Template generation limit reached. Try again in about ${limit.retryAfterSec} seconds.`,
+        },
+        { status: 429, headers: { "Retry-After": String(limit.retryAfterSec) } }
       );
     }
 

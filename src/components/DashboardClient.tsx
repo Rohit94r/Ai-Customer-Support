@@ -4,6 +4,7 @@ import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { CHAT_LANGUAGES, DEFAULT_CHAT_LANGUAGE, type ChatLanguageCode } from '@/lib/chatLanguages'
+import { FREE_MONTHLY_QUESTION_LIMIT, usageStatus } from '@/lib/usage'
 
 type DashboardTab = 'settings' | 'embed' | 'analytics'
 type QuestionVariant = {
@@ -27,6 +28,13 @@ type AnalyticsSummary = {
   cachedResponsesServed: number
   repeatedQuestions: number
 }
+
+type PreviewMessage = { role: 'user' | 'bot'; text: string }
+
+type ToastState = {
+  type: 'success' | 'error' | 'info'
+  message: string
+} | null
 
 const SAMPLE_TEMPLATE = `BUSINESS: __________ [Your Shop Name]
 WEBSITE: __________ [Your Website URL]
@@ -122,6 +130,7 @@ function DashboardClient({
     CHAT_LANGUAGES.map((language) => language.code)
   )
   const [totalQuestions, setTotalQuestions] = React.useState(0)
+  const [monthlyQuestions, setMonthlyQuestions] = React.useState(0)
   const [lastChatAt, setLastChatAt] = React.useState<string | null>(null)
   const [recentQuestions, setRecentQuestions] = React.useState<QuestionInsight[]>([])
   const [topQuestions, setTopQuestions] = React.useState<QuestionInsight[]>([])
@@ -131,8 +140,10 @@ function DashboardClient({
     repeatedQuestions: 0,
   })
   const [loading, setLoading] = React.useState(false)
-  const [saved, setSaved] = React.useState(false)
+  const [settingsLoaded, setSettingsLoaded] = React.useState(false)
+  const [toast, setToast] = React.useState<ToastState>(null)
   const [embedCopied, setEmbedCopied] = React.useState(false)
+  const [dismissedOnboarding, setDismissedOnboarding] = React.useState(false)
 
   const [aiBusinessName, setAiBusinessName] = React.useState("")
   const [aiBusinessType, setAiBusinessType] = React.useState("")
@@ -140,7 +151,12 @@ function DashboardClient({
   const [aiPhone, setAiPhone] = React.useState("")
   const [aiProductsSummary, setAiProductsSummary] = React.useState("")
   const [aiGenerating, setAiGenerating] = React.useState(false)
-  const [aiMessage, setAiMessage] = React.useState("")
+
+  const [previewMessages, setPreviewMessages] = React.useState<PreviewMessage[]>([
+    { role: 'bot', text: 'Hi! Ask me anything about your business to test the chatbot.' },
+  ])
+  const [previewInput, setPreviewInput] = React.useState('')
+  const [previewLoading, setPreviewLoading] = React.useState(false)
 
   const scriptCode = useMemo(
     () => `<script 
@@ -149,6 +165,47 @@ function DashboardClient({
 </script>`,
     [appUrl, ownerId]
   )
+
+  const usage = usageStatus(monthlyQuestions)
+  const hasBusinessName = businessName.trim().length > 0
+  const hasKnowledge = knowledge.trim().length > 40
+  const hasSupportEmail = supportEmail.trim().length > 0
+  const hasEmbedReady = hasBusinessName && hasKnowledge
+  const hasLiveChat = totalQuestions > 0
+
+  const onboardingSteps = [
+    {
+      id: 'business',
+      label: 'Add business name & support email',
+      done: hasBusinessName && hasSupportEmail,
+      action: () => setActiveTab('settings'),
+    },
+    {
+      id: 'knowledge',
+      label: 'Add knowledge base (or generate with AI)',
+      done: hasKnowledge,
+      action: () => setActiveTab('settings'),
+    },
+    {
+      id: 'embed',
+      label: 'Copy embed code for your website',
+      done: embedCopied || hasLiveChat,
+      action: () => setActiveTab('embed'),
+    },
+    {
+      id: 'test',
+      label: 'Test your chatbot from the dashboard',
+      done: previewMessages.some((m) => m.role === 'user') || hasLiveChat,
+      action: () => setActiveTab('embed'),
+    },
+  ]
+  const completedSteps = onboardingSteps.filter((step) => step.done).length
+  const showOnboarding = settingsLoaded && !dismissedOnboarding && completedSteps < onboardingSteps.length
+
+  const showToast = (type: 'success' | 'error' | 'info', message: string) => {
+    setToast({ type, message })
+    window.setTimeout(() => setToast(null), 3500)
+  }
 
   const toggleLanguage = (languageCode: ChatLanguageCode) => {
     setSupportedLanguages((currentLanguages) => {
@@ -179,10 +236,13 @@ function DashboardClient({
           : CHAT_LANGUAGES.map((language) => language.code)
       )
       setTotalQuestions(settings.totalQuestions ?? 0)
+      setMonthlyQuestions(settings.monthlyQuestions ?? 0)
       setLastChatAt(settings.lastChatAt ?? null)
       setAiBusinessName(settings.businessName || "")
-    } catch (error) {
-      console.log('Error:', error)
+    } catch {
+      showToast('error', 'Could not load settings. Refresh and try again.')
+    } finally {
+      setSettingsLoaded(true)
     }
   }
 
@@ -198,8 +258,8 @@ function DashboardClient({
           repeatedQuestions: 0,
         }
       )
-    } catch (error) {
-      console.log('Error:', error)
+    } catch {
+      // Analytics can stay empty without blocking the dashboard
     }
   }
 
@@ -210,7 +270,25 @@ function DashboardClient({
     }
   }, [ownerId])
 
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem(`apna-onboarding-dismissed-${ownerId}`) === '1') {
+        setDismissedOnboarding(true)
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }, [ownerId])
+
   const handleSettings = async () => {
+    if (!businessName.trim()) {
+      showToast('error', 'Business name is required before saving.')
+      return
+    }
+    if (!knowledge.trim()) {
+      showToast('error', 'Add a knowledge base so the chatbot can answer customers.')
+      return
+    }
     setLoading(true)
     try {
       await axios.post('/api/settings', {
@@ -221,11 +299,14 @@ function DashboardClient({
         defaultLanguage,
         supportedLanguages,
       })
-      setSaved(true)
-      setTimeout(() => setSaved(false), 3000)
+      showToast('success', 'Settings saved. Your live chatbot will use these updates.')
       await Promise.all([loadSettings(), loadAnalytics()])
     } catch (error) {
-      console.log('Error:', error)
+      const message =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? String(error.response.data.message)
+          : 'Could not save settings. Please try again.'
+      showToast('error', message)
     } finally {
       setLoading(false)
     }
@@ -234,11 +315,10 @@ function DashboardClient({
   const handleGenerateTemplate = async () => {
     const name = aiBusinessName.trim() || businessName.trim()
     if (!name) {
-      setAiMessage('Please enter a business name for AI generation.')
+      showToast('error', 'Enter a business name for AI generation.')
       return
     }
     setAiGenerating(true)
-    setAiMessage('')
     try {
       const result = await axios.post('/api/generate-template', {
         ownerId,
@@ -255,29 +335,105 @@ function DashboardClient({
       const generated = result.data.knowledge || ''
       setKnowledge(generated)
       if (!businessName.trim()) setBusinessName(name)
-      setAiMessage('AI template generated and saved to your knowledge base.')
+      showToast('success', 'AI template generated and saved to your knowledge base.')
       await loadSettings()
-    } catch {
-      setAiMessage('Could not generate template. Please try again in a moment.')
+    } catch (error) {
+      const message =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? String(error.response.data.message)
+          : 'Could not generate template. Please try again in a moment.'
+      showToast('error', message)
     } finally {
       setAiGenerating(false)
     }
   }
 
-  const handleCopyEmbed = () => {
-    navigator.clipboard.writeText(scriptCode)
-    setEmbedCopied(true)
-    setTimeout(() => setEmbedCopied(false), 2000)
+  const handleCopyEmbed = async () => {
+    try {
+      await navigator.clipboard.writeText(scriptCode)
+      setEmbedCopied(true)
+      showToast('success', 'Embed code copied. Paste it before </body> on your site.')
+      setTimeout(() => setEmbedCopied(false), 2000)
+    } catch {
+      showToast('error', 'Could not copy automatically. Select the code and copy manually.')
+    }
+  }
+
+  const dismissOnboarding = () => {
+    setDismissedOnboarding(true)
+    try {
+      window.localStorage.setItem(`apna-onboarding-dismissed-${ownerId}`, '1')
+    } catch {
+      // ignore
+    }
+  }
+
+  const sendPreviewMessage = async () => {
+    const text = previewInput.trim()
+    if (!text || previewLoading) return
+
+    if (!hasEmbedReady) {
+      showToast('info', 'Save a business name and knowledge base first, then test here.')
+      setActiveTab('settings')
+      return
+    }
+
+    setPreviewMessages((current) => [...current, { role: 'user', text }])
+    setPreviewInput('')
+    setPreviewLoading(true)
+
+    try {
+      const result = await axios.post('/api/chat', {
+        message: text,
+        ownerId,
+        language: defaultLanguage,
+      })
+      setPreviewMessages((current) => [
+        ...current,
+        { role: 'bot', text: result.data.text || result.data.message || 'No response' },
+      ])
+      await Promise.all([loadSettings(), loadAnalytics()])
+    } catch (error) {
+      const message =
+        axios.isAxiosError(error) && (error.response?.data?.message || error.response?.data?.error)
+          ? String(error.response.data.message || error.response.data.error)
+          : 'Could not reach the chatbot. Try again in a moment.'
+      setPreviewMessages((current) => [...current, { role: 'bot', text: message }])
+    } finally {
+      setPreviewLoading(false)
+    }
   }
 
   const tabs: { id: DashboardTab; label: string }[] = [
     { id: 'settings', label: 'Chatbot Settings' },
-    { id: 'embed', label: 'Embed Chatbot' },
+    { id: 'embed', label: 'Embed & Test' },
     { id: 'analytics', label: 'Chatbot Responses' },
   ]
 
+  const usageBarClass =
+    usage.tone === 'limit'
+      ? 'bg-red-500'
+      : usage.tone === 'warn'
+        ? 'bg-amber-500'
+        : 'bg-emerald-500'
+
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900">
+      {toast && (
+        <div
+          className={`fixed top-20 right-4 z-[60] max-w-sm rounded-xl px-4 py-3 text-sm shadow-lg border ${
+            toast.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : toast.type === 'error'
+                ? 'bg-red-50 border-red-200 text-red-800'
+                : 'bg-zinc-900 border-zinc-800 text-white'
+          }`}
+          role="status"
+        >
+          {toast.message}
+        </div>
+      )}
+
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -340,13 +496,102 @@ function DashboardClient({
       </div>
 
       <div className="flex justify-center px-4 py-14 pt-36">
-        <motion.div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl p-8 sm:p-10">
+        <motion.div className="w-full max-w-3xl space-y-6">
+          <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-zinc-500 font-medium">
+                  Free plan usage this month
+                </p>
+                <p className="mt-1 text-lg font-semibold">
+                  {monthlyQuestions.toLocaleString('en-IN')} / {FREE_MONTHLY_QUESTION_LIMIT.toLocaleString('en-IN')} questions
+                </p>
+                <p className="mt-1 text-sm text-zinc-500">
+                  {usage.tone === 'limit'
+                    ? 'Monthly limit reached. Chat replies pause until next month.'
+                    : usage.tone === 'warn'
+                      ? `${usage.remaining} questions left this month.`
+                      : `${usage.remaining} questions remaining on the free plan.`}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab('analytics')}
+                className="text-sm text-zinc-600 hover:text-zinc-900 underline"
+              >
+                View responses
+              </button>
+            </div>
+            <div className="mt-4 h-2 rounded-full bg-zinc-100 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${usageBarClass}`}
+                style={{ width: `${usage.percent}%` }}
+              />
+            </div>
+          </div>
+
+          {showOnboarding && (
+            <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-semibold">Get your chatbot live</h2>
+                  <p className="text-sm text-zinc-500 mt-1">
+                    {completedSteps} of {onboardingSteps.length} steps done — finish these to start answering customers.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={dismissOnboarding}
+                  className="text-xs text-zinc-400 hover:text-zinc-700"
+                >
+                  Dismiss
+                </button>
+              </div>
+              <ol className="mt-5 space-y-3">
+                {onboardingSteps.map((step, index) => (
+                  <li key={step.id}>
+                    <button
+                      type="button"
+                      onClick={step.action}
+                      className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
+                        step.done
+                          ? 'border-emerald-200 bg-emerald-50'
+                          : 'border-zinc-200 bg-zinc-50 hover:border-zinc-300'
+                      }`}
+                    >
+                      <span
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+                          step.done ? 'bg-emerald-600 text-white' : 'bg-white text-zinc-600 border border-zinc-300'
+                        }`}
+                      >
+                        {step.done ? '✓' : index + 1}
+                      </span>
+                      <span className={`text-sm ${step.done ? 'text-emerald-900' : 'text-zinc-800'}`}>
+                        {step.label}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+          <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-10">
           {activeTab === 'settings' && (
             <>
               <div className="mb-10">
                 <h1 className="text-2xl font-semibold">Chatbot Settings</h1>
                 <p className="text-zinc-500 mt-1">Manage your AI chatbot knowledge and business details.</p>
               </div>
+
+              {!hasBusinessName && !hasKnowledge && settingsLoaded && (
+                <div className="mb-8 rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-5">
+                  <p className="text-sm font-medium text-zinc-800">Your chatbot is empty</p>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    Add a business name and knowledge base below, or generate a starter template with AI.
+                  </p>
+                </div>
+              )}
 
               <div className="mb-10">
                 <h2 className="text-lg font-medium mb-4">Business Details</h2>
@@ -365,7 +610,7 @@ function DashboardClient({
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Support Email *</label>
+                    <label className="block text-sm font-medium mb-2">Support Email</label>
                     <input
                       type="email"
                       className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80"
@@ -373,6 +618,9 @@ function DashboardClient({
                       value={supportEmail}
                       onChange={(e) => setSupportEmail(e.target.value)}
                     />
+                    <p className="mt-1.5 text-xs text-zinc-500">
+                      Shown when the bot cannot answer — helps customers reach you.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -439,13 +687,8 @@ function DashboardClient({
                   onClick={handleGenerateTemplate}
                   className="mt-4 w-full sm:w-auto px-6 py-3 rounded-xl bg-black text-white text-sm font-medium hover:bg-zinc-800 disabled:opacity-60"
                 >
-                  {aiGenerating ? 'Generating with AI...' : '✨ Generate & Auto-Save Template'}
+                  {aiGenerating ? 'Generating with AI...' : 'Generate & Auto-Save Template'}
                 </button>
-                {aiMessage && (
-                  <p className={`mt-3 text-sm ${aiMessage.includes('saved') ? 'text-emerald-600' : 'text-amber-700'}`}>
-                    {aiMessage}
-                  </p>
-                )}
               </div>
 
               <div className="mb-10">
@@ -459,6 +702,9 @@ function DashboardClient({
                       value={knowledge}
                       onChange={(e) => setKnowledge(e.target.value)}
                     />
+                    <p className="mt-1.5 text-xs text-zinc-500">
+                      {knowledge.trim().length.toLocaleString('en-IN')} characters
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">Manual Template (Copy & Fill)</label>
@@ -467,9 +713,13 @@ function DashboardClient({
                     </div>
                     <button
                       type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText(SAMPLE_TEMPLATE)
-                        alert('Template copied! Paste it in the left field and fill your details.')
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(SAMPLE_TEMPLATE)
+                          showToast('success', 'Template copied. Paste it on the left and fill your details.')
+                        } catch {
+                          showToast('error', 'Could not copy template. Select and copy manually.')
+                        }
                       }}
                       className="mt-2 w-full px-3 py-2 bg-black text-white text-xs rounded-lg hover:bg-zinc-800 transition font-medium"
                     >
@@ -528,11 +778,13 @@ function DashboardClient({
                 >
                   {loading ? 'Saving...' : 'Save Settings'}
                 </motion.button>
-                {saved && (
-                  <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="text-sm font-medium text-emerald-600">
-                    Settings Saved
-                  </motion.span>
-                )}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('embed')}
+                  className="text-sm text-zinc-600 hover:text-zinc-900 underline"
+                >
+                  Next: embed & test →
+                </button>
               </div>
             </>
           )}
@@ -540,11 +792,21 @@ function DashboardClient({
           {activeTab === 'embed' && (
             <>
               <div className="mb-8">
-                <h1 className="text-2xl font-semibold">Embed Chatbot</h1>
+                <h1 className="text-2xl font-semibold">Embed & Test</h1>
                 <p className="text-zinc-500 mt-1">
-                  Copy this script and paste it before the closing <code className="text-xs bg-zinc-100 px-1 rounded">&lt;/body&gt;</code> tag on your website.
+                  Copy this script and paste it before the closing <code className="text-xs bg-zinc-100 px-1 rounded">&lt;/body&gt;</code> tag, then test replies here before going live.
                 </p>
               </div>
+
+              {!hasEmbedReady && (
+                <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                  Finish chatbot settings first (business name + knowledge).{' '}
+                  <button type="button" className="underline font-medium" onClick={() => setActiveTab('settings')}>
+                    Go to settings
+                  </button>
+                </div>
+              )}
+
               <div className="bg-zinc-900 text-green-400 p-6 rounded-xl font-mono text-sm overflow-x-auto">
                 <pre>{scriptCode}</pre>
               </div>
@@ -553,12 +815,64 @@ function DashboardClient({
                 onClick={handleCopyEmbed}
                 className="mt-4 px-6 py-3 bg-black text-white rounded-xl hover:bg-zinc-800 text-sm font-medium"
               >
-                {embedCopied ? '✓ Copied!' : 'Copy Embed Code'}
+                {embedCopied ? 'Copied!' : 'Copy Embed Code'}
               </button>
               <p className="mt-6 text-sm text-zinc-500">
                 Works on WordPress, Shopify, Wix, React, and plain HTML. Your chatbot uses owner ID:{' '}
                 <span className="font-mono text-xs text-zinc-700">{ownerId}</span>
               </p>
+
+              <div className="mt-10 rounded-2xl border border-zinc-200 overflow-hidden">
+                <div className="bg-zinc-900 text-white px-5 py-4">
+                  <h2 className="text-base font-semibold">Live preview</h2>
+                  <p className="text-xs text-zinc-400 mt-1">
+                    Sends real questions to your chatbot — same API your website widget uses.
+                  </p>
+                </div>
+                <div className="h-72 overflow-y-auto bg-zinc-50 p-4 space-y-3">
+                  {previewMessages.map((message, index) => (
+                    <div
+                      key={`${message.role}-${index}`}
+                      className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                        message.role === 'user'
+                          ? 'ml-auto bg-zinc-900 text-white rounded-br-md'
+                          : 'bg-white border border-zinc-200 text-zinc-800 rounded-bl-md'
+                      }`}
+                    >
+                      {message.text}
+                    </div>
+                  ))}
+                  {previewLoading && (
+                    <div className="w-fit rounded-2xl bg-white border border-zinc-200 px-3.5 py-2.5 text-sm text-zinc-500">
+                      Thinking…
+                    </div>
+                  )}
+                </div>
+                <div className="border-t border-zinc-200 bg-white p-3 flex gap-2">
+                  <input
+                    type="text"
+                    value={previewInput}
+                    onChange={(e) => setPreviewInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        sendPreviewMessage()
+                      }
+                    }}
+                    placeholder={hasEmbedReady ? 'Ask a test question…' : 'Save settings first to test'}
+                    disabled={!hasEmbedReady || previewLoading}
+                    className="flex-1 rounded-xl border border-zinc-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black/80 disabled:bg-zinc-50"
+                  />
+                  <button
+                    type="button"
+                    onClick={sendPreviewMessage}
+                    disabled={!hasEmbedReady || previewLoading || !previewInput.trim()}
+                    className="rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
             </>
           )}
 
@@ -575,6 +889,13 @@ function DashboardClient({
                   <p className="text-xs uppercase tracking-wide text-zinc-500 font-medium">Total questions asked</p>
                   <p className="text-4xl font-semibold mt-2">{totalQuestions}</p>
                   <p className="text-xs text-zinc-500 mt-2">Every message a customer sends to your bot</p>
+                </div>
+                <div className="rounded-2xl border border-zinc-200 p-6 bg-zinc-50">
+                  <p className="text-xs uppercase tracking-wide text-zinc-500 font-medium">This month (free plan)</p>
+                  <p className="text-4xl font-semibold mt-2">{monthlyQuestions}</p>
+                  <p className="text-xs text-zinc-500 mt-2">
+                    of {FREE_MONTHLY_QUESTION_LIMIT.toLocaleString('en-IN')} included questions
+                  </p>
                 </div>
                 <div className="rounded-2xl border border-zinc-200 p-6 bg-zinc-50">
                   <p className="text-xs uppercase tracking-wide text-zinc-500 font-medium">Last customer chat</p>
@@ -651,9 +972,19 @@ function DashboardClient({
                         )}
                       </div>
                     )) : (
-                      <p className="rounded-xl border border-dashed border-zinc-300 p-4 text-sm text-zinc-500">
-                        No customer questions yet. Once visitors chat with your bot, they will appear here.
-                      </p>
+                      <div className="rounded-xl border border-dashed border-zinc-300 p-6 text-center">
+                        <p className="text-sm font-medium text-zinc-800">No customer questions yet</p>
+                        <p className="mt-1 text-sm text-zinc-500">
+                          Embed the widget or use Live preview to generate your first replies.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab('embed')}
+                          className="mt-4 text-sm font-medium text-zinc-900 underline"
+                        >
+                          Open Embed & Test
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -698,6 +1029,7 @@ function DashboardClient({
                 onClick={() => {
                   loadSettings()
                   loadAnalytics()
+                  showToast('info', 'Stats refreshed.')
                 }}
                 className="mt-6 text-sm text-zinc-600 hover:text-zinc-900 underline"
               >
@@ -705,6 +1037,7 @@ function DashboardClient({
               </button>
             </>
           )}
+          </div>
         </motion.div>
       </div>
     </div>

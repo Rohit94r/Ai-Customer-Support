@@ -10,6 +10,8 @@ interface ISettings{
    defaultLanguage:string
    supportedLanguages:string[]
    totalQuestions:number
+   monthlyQuestions:number
+   monthlyPeriodKey:string
    lastChatAt:Date | null
 }
 
@@ -42,6 +44,14 @@ const settingsSchema=new Schema<ISettings>({
    totalQuestions: {
       type: Number,
       default: 0,
+   },
+   monthlyQuestions: {
+      type: Number,
+      default: 0,
+   },
+   monthlyPeriodKey: {
+      type: String,
+      default: "",
    },
    lastChatAt: {
       type: Date,

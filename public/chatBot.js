@@ -22,6 +22,10 @@
          voiceUnavailable:
             "Voice input is not supported in this browser. Please type your message.",
          welcome: "Hi! How can I help you today?",
+         empty: "Please type a message first.",
+         sending: "Sending...",
+         offline: "You appear to be offline. Check your connection and try again.",
+         error: "Something went wrong. Please try again.",
       },
       "hi-IN": {
          label: "Hindi",
@@ -32,6 +36,10 @@
          voiceUnavailable:
             "इस ब्राउज़र में वॉइस इनपुट उपलब्ध नहीं है। कृपया अपना संदेश टाइप करें।",
          welcome: "नमस्ते! मैं आपकी किस तरह मदद कर सकता हूँ?",
+         empty: "कृपया पहले अपना संदेश लिखें।",
+         sending: "भेज रहा हूँ...",
+         offline: "लगता है आप ऑफ़लाइन हैं। कनेक्शन जाँचकर फिर कोशिश करें।",
+         error: "कुछ गलत हो गया। कृपया फिर कोशिश करें।",
       },
       "mr-IN": {
          label: "Marathi",
@@ -42,6 +50,10 @@
          voiceUnavailable:
             "या ब्राउझरमध्ये व्हॉइस इनपुट उपलब्ध नाही. कृपया तुमचा संदेश टाइप करा.",
          welcome: "नमस्कार! मी तुम्हाला कशी मदत करू शकतो?",
+         empty: "कृपया आधी संदेश टाइप करा.",
+         sending: "पाठवत आहे...",
+         offline: "तुम्ही ऑफलाइन दिसत आहात. कनेक्शन तपासा आणि पुन्हा प्रयत्न करा.",
+         error: "काहीतरी चुकले. कृपया पुन्हा प्रयत्न करा.",
       },
       "gu-IN": {
          label: "Gujarati",
@@ -52,9 +64,14 @@
          voiceUnavailable:
             "આ બ્રાઉઝરમાં વોઇસ ઇનપુટ ઉપલબ્ધ નથી. કૃપા કરીને તમારો સંદેશ ટાઇપ કરો.",
          welcome: "નમસ્તે! હું તમારી કેવી રીતે મદદ કરી શકું?",
+         empty: "કૃપા કરીને પહેલા સંદેશ લખો.",
+         sending: "મોકલી રહ્યા છીએ...",
+         offline: "લાગે છે તમે ઑફલાઇન છો. કનેક્શન તપાસીને ફરી પ્રયાસ કરો.",
+         error: "કંઈક ખોટું થયું. કૃપા કરીને ફરી પ્રયાસ કરો.",
       },
    };
    var FALLBACK_LANGUAGES = ["en-IN", "hi-IN", "mr-IN", "gu-IN"];
+   var MESSAGE_MAX_CHARS = 1000;
    var state = {
       businessName: "Apna AI",
       supportedLanguages: FALLBACK_LANGUAGES.slice(),
@@ -62,6 +79,7 @@
       recognition: null,
       isListening: false,
       configLoaded: false,
+      isSending: false,
    };
 
    function getLanguage(languageCode) {
@@ -330,15 +348,40 @@
       }
    }
 
+   function setSending(isSending) {
+      state.isSending = isSending;
+      sendButton.disabled = isSending;
+      input.disabled = isSending;
+      sendButton.style.opacity = isSending ? "0.65" : "1";
+      sendButton.style.cursor = isSending ? "not-allowed" : "pointer";
+   }
+
    async function sendMessage() {
+      var language = getLanguage(state.selectedLanguage);
       var text = input.value.trim();
 
-      if (!text) return;
+      if (state.isSending) return;
+
+      if (!text) {
+         setStatus(language.empty, true);
+         return;
+      }
+
+      if (text.length > MESSAGE_MAX_CHARS) {
+         setStatus("Message is too long (max " + MESSAGE_MAX_CHARS + " characters).", true);
+         return;
+      }
+
+      if (typeof navigator !== "undefined" && navigator.onLine === false) {
+         setStatus(language.offline, true);
+         return;
+      }
 
       addMessage(text, "user");
       input.value = "";
       updateInputHeight();
-      setStatus("", false);
+      setStatus(language.sending, false);
+      setSending(true);
       showTypingIndicator();
 
       try {
@@ -354,18 +397,28 @@
             }),
          });
 
-         var data = await response.json();
+         var data = {};
+         try {
+            data = await response.json();
+         } catch {
+            data = {};
+         }
          removeTypingIndicator();
 
          if (!response.ok) {
-            addMessage(data.message || data.error || "Failed to get response", "bot");
+            addMessage(data.message || data.error || language.error, "bot");
+            setStatus("", false);
             return;
          }
 
-         addMessage(data.text || data.message || "No response", "bot");
+         addMessage(data.text || data.message || language.error, "bot");
+         setStatus("", false);
       } catch {
          removeTypingIndicator();
-         addMessage("Could not connect to server. Please try again.", "bot");
+         addMessage(language.offline, "bot");
+         setStatus(language.error, true);
+      } finally {
+         setSending(false);
       }
    }
 

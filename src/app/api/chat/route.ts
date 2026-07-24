@@ -5,6 +5,9 @@ import {
    getLanguageConfig,
    isSupportedLanguage,
 } from "@/lib/chatLanguages";
+import { checkRateLimit, clientIpFromRequest } from "@/lib/rateLimit";
+import { FREE_MONTHLY_QUESTION_LIMIT, currentPeriodKey } from "@/lib/usage";
+import { validateChatMessage, validateOwnerId } from "@/lib/validation";
 import ChatQuestion from "@/model/chatQuestion.model";
 import Settings from "@/model/settings.model";
 import Groq from "groq-sdk";
@@ -36,23 +39,144 @@ function buildKnowledgeSignature({
       .digest("hex");
 }
 
+async function bumpUsage(ownerId: string, askedAt: Date, periodKey: string) {
+   const setting = await Settings.findOne({ ownerId });
+   if (!setting) return;
+
+   if (setting.monthlyPeriodKey === periodKey) {
+      await Settings.findOneAndUpdate(
+         { ownerId },
+         {
+            $inc: { totalQuestions: 1, monthlyQuestions: 1 },
+            $set: { lastChatAt: askedAt },
+         }
+      );
+      return;
+   }
+
+   await Settings.findOneAndUpdate(
+      { ownerId },
+      {
+         $inc: { totalQuestions: 1 },
+         $set: {
+            lastChatAt: askedAt,
+            monthlyQuestions: 1,
+            monthlyPeriodKey: periodKey,
+         },
+      }
+   );
+}
+
 export async function POST(req: NextRequest) {
-
    try {
-      const { message, ownerId, language } = await req.json();
-      if (!message || !ownerId) {
-         return NextResponse.json({ error: "Message and OwnerId are required" }, { 
-            status: 400
-         });
-      }
-      await connectDb()
-      const setting = await Settings.findOne({ownerId})
-      if (!setting) {
-         return NextResponse.json({ message: "chat bot is not configured for this user" }, { 
-            status: 400
-         });
+      const ip = clientIpFromRequest(req);
+      let body: { message?: unknown; ownerId?: unknown; language?: unknown };
 
+      try {
+         body = await req.json();
+      } catch {
+         return NextResponse.json(
+            {
+               error: "Invalid JSON body",
+               message: "Could not read your message. Please try again.",
+            },
+            { status: 400 }
+         );
       }
+
+      const ownerId = validateOwnerId(body.ownerId);
+      if (!ownerId) {
+         return NextResponse.json(
+            {
+               error: "Owner ID is required",
+               message: "This chatbot is missing its owner ID. Please check the embed code.",
+            },
+            { status: 400 }
+         );
+      }
+
+      const messageCheck = validateChatMessage(body.message);
+      if (!messageCheck.ok) {
+         return NextResponse.json(
+            { error: messageCheck.error, message: messageCheck.error },
+            { status: 400 }
+         );
+      }
+      const message = messageCheck.message;
+      const language = body.language;
+
+      const ipLimit = checkRateLimit(`chat:ip:${ip}`, 40, 60_000);
+      if (!ipLimit.allowed) {
+         return NextResponse.json(
+            {
+               error: "Too many requests",
+               message: "You're sending messages too quickly. Please wait a moment and try again.",
+            },
+            {
+               status: 429,
+               headers: { "Retry-After": String(ipLimit.retryAfterSec) },
+            }
+         );
+      }
+
+      const ownerLimit = checkRateLimit(`chat:owner:${ownerId}`, 60, 60_000);
+      if (!ownerLimit.allowed) {
+         return NextResponse.json(
+            {
+               error: "Too many requests",
+               message: "This chatbot is busy right now. Please try again in a minute.",
+            },
+            {
+               status: 429,
+               headers: { "Retry-After": String(ownerLimit.retryAfterSec) },
+            }
+         );
+      }
+
+      await connectDb();
+      const setting = await Settings.findOne({ ownerId });
+      if (!setting) {
+         return NextResponse.json(
+            {
+               error: "Chatbot not configured",
+               message:
+                  "This chatbot is not set up yet. The business owner needs to add their details in the Apna AI dashboard.",
+            },
+            { status: 400 }
+         );
+      }
+
+      if (!setting.knowledge?.trim() || !setting.businessName?.trim()) {
+         return NextResponse.json(
+            {
+               error: "Chatbot incomplete",
+               message:
+                  "This chatbot is still being set up. Please check back soon, or contact the business directly.",
+            },
+            { status: 503 }
+         );
+      }
+
+      const periodKey = currentPeriodKey();
+      const monthlyUsed =
+         setting.monthlyPeriodKey === periodKey ? setting.monthlyQuestions || 0 : 0;
+
+      if (monthlyUsed >= FREE_MONTHLY_QUESTION_LIMIT) {
+         return NextResponse.json(
+            {
+               error: "Monthly limit reached",
+               message: setting.supportEmail
+                  ? `We've hit our chat limit for this month. Please email ${setting.supportEmail} for help.`
+                  : "We've hit our chat limit for this month. Please contact the business directly.",
+               usage: {
+                  monthlyQuestions: monthlyUsed,
+                  limit: FREE_MONTHLY_QUESTION_LIMIT,
+               },
+            },
+            { status: 429 }
+         );
+      }
+
       const enabledLanguages = Array.isArray(setting.supportedLanguages)
          ? setting.supportedLanguages.filter((value: string) => isSupportedLanguage(value))
          : [];
@@ -69,9 +193,6 @@ export async function POST(req: NextRequest) {
               : DEFAULT_CHAT_LANGUAGE;
       const languageConfig = getLanguageConfig(activeLanguage);
       const normalizedQuestion = normalizeQuestion(message);
-      if (!normalizedQuestion) {
-         return NextResponse.json({ error: "Message cannot be empty" }, { status: 400 });
-      }
       const knowledgeSignature = buildKnowledgeSignature({
          businessName: setting.businessName,
          supportEmail: setting.supportEmail,
@@ -83,7 +204,7 @@ export async function POST(req: NextRequest) {
       support email- ${setting.supportEmail || "not provided"}
       knowledge - ${setting.knowledge || "not provided"}
      
-      `
+      `;
       const prompt = `
       You are a professional customer support assistant for this business.
       Use only the information provided below to answer the customer's question.
@@ -112,7 +233,7 @@ export async function POST(req: NextRequest) {
       ----------------------
       ANSWER:
       `;
-      
+
       try {
          const cachedResponse = await ChatQuestion.findOne({
             ownerId,
@@ -122,21 +243,15 @@ export async function POST(req: NextRequest) {
          });
 
          if (cachedResponse) {
-            cachedResponse.latestQuestion = message.trim();
+            cachedResponse.latestQuestion = message;
             cachedResponse.lastAskedAt = askedAt;
             cachedResponse.askedCount += 1;
             cachedResponse.cacheHits += 1;
             cachedResponse.recentQuestions = [
-               { question: message.trim(), askedAt },
+               { question: message, askedAt },
                ...cachedResponse.recentQuestions,
             ].slice(0, 8);
-            await Promise.all([
-               cachedResponse.save(),
-               Settings.findOneAndUpdate(
-                  { ownerId },
-                  { $inc: { totalQuestions: 1 }, lastChatAt: askedAt }
-               ),
-            ]);
+            await Promise.all([cachedResponse.save(), bumpUsage(ownerId, askedAt, periodKey)]);
             return NextResponse.json({
                text: cachedResponse.answer,
                language: activeLanguage,
@@ -161,7 +276,7 @@ export async function POST(req: NextRequest) {
                {
                   ownerId,
                   normalizedQuestion,
-                  latestQuestion: message.trim(),
+                  latestQuestion: message,
                   answer: text,
                   responseLanguage: activeLanguage,
                   knowledgeSignature,
@@ -169,39 +284,40 @@ export async function POST(req: NextRequest) {
                   cacheHits: 0,
                   firstAskedAt: askedAt,
                   lastAskedAt: askedAt,
-                  recentQuestions: [{ question: message.trim(), askedAt }],
+                  recentQuestions: [{ question: message, askedAt }],
                },
                { upsert: true, new: true, setDefaultsOnInsert: true }
             ),
-            Settings.findOneAndUpdate(
-               { ownerId },
-               { $inc: { totalQuestions: 1 }, lastChatAt: askedAt }
-            ),
+            bumpUsage(ownerId, askedAt, periodKey),
          ]);
          return NextResponse.json({ text, language: activeLanguage, cached: false });
       } catch (apiError: Error | unknown) {
          const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);
-         if (errorMessage.includes('429') || errorMessage.includes('quota') || errorMessage.includes('rate limit')) {
-            return NextResponse.json({
-               error: "API quota exceeded. Please try again later.",
-               message: setting.supportEmail
-                  ? `${languageConfig.fallbackMessage} ${setting.supportEmail}`
-                  : languageConfig.fallbackMessage,
-            }, { status: 429 });
+         if (
+            errorMessage.includes("429") ||
+            errorMessage.includes("quota") ||
+            errorMessage.includes("rate limit")
+         ) {
+            return NextResponse.json(
+               {
+                  error: "AI temporarily unavailable",
+                  message: setting.supportEmail
+                     ? `${languageConfig.fallbackMessage} ${setting.supportEmail}`
+                     : languageConfig.fallbackMessage,
+               },
+               { status: 429 }
+            );
          }
          throw apiError;
       }
-
-
    } catch (error) {
       console.error("Chat API Error:", error);
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      return NextResponse.json({ 
-         error: errorMessage,
-         message: `Chat error: ${errorMessage}` 
-      }, { 
-         status: 500
-      });
+      return NextResponse.json(
+         {
+            error: "Something went wrong",
+            message: "Sorry, we couldn't answer right now. Please try again in a moment.",
+         },
+         { status: 500 }
+      );
    }
-
 }
